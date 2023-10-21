@@ -19,7 +19,7 @@
 #define TIMER_DECREMENT "DECREMENTO"
 
 // funcional
-#define MAX_STRING 50
+#define MAX_STRING 100
 #define RD 0
 #define WR 1
 
