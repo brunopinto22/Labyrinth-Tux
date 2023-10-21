@@ -102,6 +102,14 @@ int main(int argc, char** argv){
         // begin();
       break;
 
+      case SETTINGS:
+        printSettings(&gameSettings);
+      break;
+
+      case HELP:
+        printHelp();
+      break;
+
       case END:
         // sair
       break;

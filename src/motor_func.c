@@ -12,45 +12,45 @@ bool ini(int* fd, envVariables* gameSettings){
 
   char* env = getenv(TIMER);
   if(env != NULL){
-    if(sscanf(env, "%d", gameSettings->timer) != 1){
-      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s", C_FATAL_ERROR, TIMER,C_CLEAR);
+    if(sscanf(env, "%d", &gameSettings->timer) != 1){
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s\n", C_FATAL_ERROR, TIMER,C_CLEAR);
 		  return false;
     }
   } else {
-    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, TIMER,C_CLEAR);
+    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s\n", C_FATAL_ERROR, TIMER,C_CLEAR);
 		return false;
   }
 
   env = getenv(TIME_REG);
   if(env != NULL){
-    if(sscanf(env, "%d", gameSettings->reg_time) != 1){
-      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s", C_FATAL_ERROR, TIME_REG,C_CLEAR);
+    if(sscanf(env, "%d", &gameSettings->reg_time) != 1){
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s\n", C_FATAL_ERROR, TIME_REG,C_CLEAR);
 		  return false;
     }
   } else {
-    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, TIME_REG,C_CLEAR);
+    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s\n", C_FATAL_ERROR, TIME_REG,C_CLEAR);
 		return false;
   }
 
   env = getenv(TIMER_DECREMENT);
   if(env != NULL){
-    if(sscanf(env, "%d", gameSettings->timer_dc) != 1){
-      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s", C_FATAL_ERROR, TIMER_DECREMENT,C_CLEAR);
+    if(sscanf(env, "%d", &gameSettings->timer_dc) != 1){
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s\n", C_FATAL_ERROR, TIMER_DECREMENT,C_CLEAR);
 		  return false;
     }
   } else {
-    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, TIMER_DECREMENT,C_CLEAR);
+    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s\n", C_FATAL_ERROR, TIMER_DECREMENT,C_CLEAR);
 		return false;
   }
 
   env = getenv(MIN_USERS);
   if(env != NULL){
-    if(sscanf(env, "%d", gameSettings->min_players) != 1){
-      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
+    if(sscanf(env, "%d", &gameSettings->min_players) != 1){
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s\n", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
 		  return false;
     }
     } else {
-      sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
+      sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s\n", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
 		return false;
   }
   
@@ -123,7 +123,21 @@ int checkCMD(prompt* prmt){
 
     if(strcmp(prmt->args, "") == 0)
       return BEGIN;
-    sprintf(error, "%serro de formatacao: %sBEGIN%s", C_ERROR, C_FERROR, C_CLEAR);
+    sprintf(error, "%serro de formatacao: %sbegin%s", C_ERROR, C_FERROR, C_CLEAR);
+    return CMD_ERROR;
+
+  } else if(strcmp(prmt->command, "settings") == 0){
+
+    if(strcmp(prmt->args, "") == 0)
+      return SETTINGS;
+    sprintf(error, "%serro de formatacao: %ssettings%s", C_ERROR, C_FERROR, C_CLEAR);
+    return CMD_ERROR;
+
+  } else if(strcmp(prmt->command, "help") == 0){
+
+    if(strcmp(prmt->args, "") == 0)
+      return HELP;
+    sprintf(error, "%serro de formatacao: %shelp%s", C_ERROR, C_FERROR, C_CLEAR);
     return CMD_ERROR;
 
   } else if(strcmp(prmt->command, "end") == 0){
@@ -185,4 +199,12 @@ int checkCMD_UI(prompt* prmt){
   } else 
     return CMD_ERROR; 
 
+}
+
+void printSettings(envVariables* gameSettings){
+  printf("\nDuracao de cada nivel: %d\nDecremento: %d\nTempo de Registo: %d\nMinimo de Jogadores: %d\n", gameSettings->timer, gameSettings->timer_dc, gameSettings->reg_time, gameSettings->min_players);
+}
+
+void printHelp(){
+  printf("\nusers - imprime a lista de todos os jogadores na plantaforma\nkick - expulsa um jogador\nbots - lista os bots\nbmov - insere um bloqueio movel\nrbm - remove um bloqueio movel\nbegin - comeca o jogo\nsettings - mostra as definicoes do jogo\nend - fecha o programa\n");
 }

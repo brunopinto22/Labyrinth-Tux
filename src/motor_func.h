@@ -41,6 +41,12 @@ int checkCMD_UI(prompt* prmt);
 //              RIGHT
 //              LEFT
 
+void printSettings(envVariables* gameSettings);
+// imprime os valores das definicoes do jogo
+
+void printHelp();
+// imprime a lista de comandos
+
 bool sendTo(sharedData* data, userInfo* user);
 // envia para uma UI dados
 // retorna:     true - envie

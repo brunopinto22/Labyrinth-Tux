@@ -25,6 +25,7 @@
 
 // comandos
 #define CMD_ERROR -1
+#define HELP 10
 #define CLEAR 22
 // motor:
 #define USERS 1
@@ -33,6 +34,7 @@
 #define BMOV 4
 #define RBM 5
 #define BEGIN 6
+#define SETTINGS 7
 #define END 0
 // ui:
 #define LOGIN 1
