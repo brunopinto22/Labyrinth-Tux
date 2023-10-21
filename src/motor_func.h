@@ -28,7 +28,7 @@ int checkCMD(prompt* prmt);
 //              BEGIN
 //              END
 
-int checkCMD_UI(prompt* prmt, userInfo* user);
+int checkCMD_UI(prompt* prmt);
 // verifica o comando pedido pela UI
 // retorna:     CMD_ERROR
 //              LOGIN
