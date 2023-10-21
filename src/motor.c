@@ -50,7 +50,7 @@ int main(int argc, char** argv){
 		res = select(fd + 1, &fds, NULL, NULL, &timeout);
 
 		if (res == -1 && command != END) {
-			printf("Occoreu um erro no select\n");
+			printf("\n%sERRO - Occoreu um erro no select%s\n", C_FATAL_ERROR, C_CLEAR);
 			close(fd);
 			unlink(MOTOR_FIFO);
 			return 1;
@@ -70,26 +70,32 @@ int main(int argc, char** argv){
       break;
 
       case USERS:
+        printf(">> lista users <<\n");
         // printUsers();
       break;
 
       case KICK:
+        printf(">> kick %s<<\n", cmd.args);
         // kick(&cmd);
       break;
 
       case BOTS:
+        printf(">> lista bots <<\n");
         // printBots();
       break;
 
       case BMOV:
+      printf(">> inserir bloqueio movel <<\n");
         // rmMv();
       break;
 
       case RBM:
+      printf(">> remover bloqueio movel <<\n");
         // rmBm();
       break;
 
       case BEGIN:
+      printf(">> comecar jogo <<\n");
         // begin();
       break;
 
