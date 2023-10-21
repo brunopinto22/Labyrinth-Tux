@@ -35,4 +35,12 @@ struct sharedData{
 	prompt cmd;
 };
 
+typedef struct envVariables envVariables;
+struct envVariables{
+  int reg_time;       // tempo de inscricao
+  int min_players;    // num. minimo de jogares
+  int timer;          // duracao de cada nivel
+  int timer_dc;       // decremento por nivel
+};
+
 #endif //TP_GLOBAL_H
