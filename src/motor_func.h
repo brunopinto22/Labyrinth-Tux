@@ -7,9 +7,14 @@
 char* getError();
 // retorna o ultimo erro ocorrido no sistema
 
-bool ini(int* fd_backend);
+bool ini(int* fd);
 // inicia o servidor
 // retorna:     true - inicie
+//              false - em caso de algum erro
+
+bool closeMotor(int* fd);
+// fecha o servidor
+// retorna:     true - feche
 //              false - em caso de algum erro
 
 int checkCMD(prompt* prmt);
