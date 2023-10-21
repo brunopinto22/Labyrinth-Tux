@@ -6,7 +6,55 @@ char error[MAX_STRING] = "No Error yet lol";
 char* getError(){ return error; }
 
 
-bool ini(int* fd){
+bool ini(int* fd, envVariables* gameSettings){
+
+  // variaveis de ambiente
+
+  char* env = getenv(TIMER);
+  if(env != NULL){
+    if(sscanf(env, "%d", gameSettings->timer) != 1){
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s", C_FATAL_ERROR, TIMER,C_CLEAR);
+		  return false;
+    }
+  } else {
+    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, TIMER,C_CLEAR);
+		return false;
+  }
+
+  env = getenv(TIME_REG);
+  if(env != NULL){
+    if(sscanf(env, "%d", gameSettings->reg_time) != 1){
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s", C_FATAL_ERROR, TIME_REG,C_CLEAR);
+		  return false;
+    }
+  } else {
+    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, TIME_REG,C_CLEAR);
+		return false;
+  }
+
+  env = getenv(TIMER_DECREMENT);
+  if(env != NULL){
+    if(sscanf(env, "%d", gameSettings->timer_dc) != 1){
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s", C_FATAL_ERROR, TIMER_DECREMENT,C_CLEAR);
+		  return false;
+    }
+  } else {
+    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, TIMER_DECREMENT,C_CLEAR);
+		return false;
+  }
+
+  env = getenv(MIN_USERS);
+  if(env != NULL){
+    if(sscanf(env, "%d", gameSettings->min_players) != 1){
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
+		  return false;
+    }
+    } else {
+      sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
+		return false;
+  }
+  
+
   // abertura do fifo do backend para leitura
 	if (mkfifo(MOTOR_FIFO, 0666) == -1) {
 		if (errno == EEXIST)

@@ -7,7 +7,7 @@
 char* getError();
 // retorna o ultimo erro ocorrido no sistema
 
-bool ini(int* fd);
+bool ini(int* fd, envVariables* gameSettings);
 // inicia o servidor
 // retorna:     true - inicie
 //              false - em caso de algum erro
