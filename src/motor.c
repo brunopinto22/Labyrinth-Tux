@@ -20,13 +20,16 @@ int main(int argc, char** argv){
 	char string[MAX_STRING];
   sharedData sharedCmd;
 
+  // vars de jogo
+  envVariables gameSettings;
+
 	// select
 	int res;
 	fd_set fds;
 	struct timeval timeout;
 
   // iniciar o motor
-	if(!ini(&fd)){
+	if(!ini(&fd, &gameSettings)){
 	  printf("\n%s\n", getError());
 	  return 1;
 	}
