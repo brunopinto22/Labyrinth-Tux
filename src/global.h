@@ -17,10 +17,17 @@
 
 
 // estruturas
+typedef struct coordinates coordinates;
+struct coordinates{
+	int x;
+  int y;
+};
+
 typedef struct userInfo userInfo;
 struct userInfo{
 	pid_t pid;
 	char name[MAX_STRING];
+  coordinates coords;
 };
 
 typedef struct prompt prompt;
@@ -42,5 +49,13 @@ struct envVariables{
   int timer;          // duracao de cada nivel
   int timer_dc;       // decremento por nivel
 };
+
+typedef struct gameLevel gameLevel;
+struct gameLevel{
+  int level;
+  int level_time;
+  char map[NUM_COLS][NUM_LINES];
+};
+
 
 #endif //TP_GLOBAL_H

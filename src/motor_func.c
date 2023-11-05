@@ -47,7 +47,7 @@ bool loadMaps(gameLevel levels[MAX_LEVELS], envVariables* gameSettings){
     // abrir o ficheiro
     file = fopen(file_name, "rw");
     if(file == NULL){ // caso nao exista usa o nivel default
-      FILE* file = fopen(DEFAULT_LEVEL_FILE, "rw");
+      file = fopen(DEFAULT_LEVEL_FILE, "rw");
       if(file == NULL){
         sprintf(error, "%sERRO - Nao foi possivel abrir o ficheiro '%s' %s", C_FATAL_ERROR, DEFAULT_LEVEL_FILE, C_CLEAR);
         return false;

@@ -4,13 +4,15 @@
 // sistema
 #define MOTOR_FIFO "FIFO_MOTOR"
 #define UI_FIFO "FIFO_UI%d"
+#define DEFAULT_LEVEL_FILE "LEVEL_DEFAULT"
+#define LEVEL_FILE "LEVEL%d"
 #define MAX_USERS 5
 #define MAX_BOTS 10
 #define MAX_PEDRAS 50
 #define MAX_LEVELS 3
 #define MAX_BMOV 5
 #define NUM_COLS 40
-#define NUM_LINES 16
+#define NUM_LINES 17
 
 // vars de ambiente
 #define TIME_REG "INSCRICAO"

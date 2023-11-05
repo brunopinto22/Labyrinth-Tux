@@ -7,8 +7,18 @@
 char* getError();
 // retorna o ultimo erro ocorrido no sistema
 
-bool ini(int* fd, envVariables* gameSettings);
+bool ini(int* fd, envVariables* gameSettings, gameLevel* maps);
 // inicia o servidor
+// retorna:     true - inicie
+//              false - em caso de algum erro
+
+bool setGameSettings(envVariables* gameSettings);
+// inicia as definicoes do jogo
+// retorna:     true - inicie
+//              false - em caso de algum erro
+
+bool loadMaps(gameLevel levels[MAX_LEVELS], envVariables* gameSettings);
+// inicia os maps
 // retorna:     true - inicie
 //              false - em caso de algum erro
 

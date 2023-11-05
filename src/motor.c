@@ -22,6 +22,7 @@ int main(int argc, char** argv){
 
   // vars de jogo
   envVariables gameSettings;
+  gameLevel levels[MAX_LEVELS];
 
 	// select
 	int res;
@@ -29,7 +30,7 @@ int main(int argc, char** argv){
 	struct timeval timeout;
 
   // iniciar o motor
-	if(!ini(&fd, &gameSettings)){
+	if(!ini(&fd, &gameSettings, levels)){
 	  printf("\n%s\n", getError());
 	  return 1;
 	}
@@ -54,10 +55,9 @@ int main(int argc, char** argv){
 
 		if (res == -1 && command != END) {
 			printf("\n%sERRO - Occoreu um erro no select%s\n", C_FATAL_ERROR, C_CLEAR);
-			close(fd);
-			unlink(MOTOR_FIFO);
-			return 1;
-
+			if(!closeMotor(&fd))
+        printf("%s\nERRO - programa nao foi bem fechado\n%s", C_FATAL_ERROR, C_CLEAR);
+      return 1;
 		}
 		else if (res > 0 && FD_ISSET(0, &fds) && command != END) { // ler os comandos do ADMIN
 			scanf("%[^\n]", string);
@@ -88,17 +88,17 @@ int main(int argc, char** argv){
       break;
 
       case BMOV:
-      printf(">> inserir bloqueio movel <<\n");
+        printf(">> inserir bloqueio movel <<\n");
         // rmMv();
       break;
 
       case RBM:
-      printf(">> remover bloqueio movel <<\n");
+        printf(">> remover bloqueio movel <<\n");
         // rmBm();
       break;
 
       case BEGIN:
-      printf(">> comecar jogo <<\n");
+        printf(">> comecar jogo <<\n");
         // begin();
       break;
 
@@ -117,7 +117,7 @@ int main(int argc, char** argv){
       default:
         printf("\n%sERRO - nao devia de ter chegado aqui%s\n", C_FATAL_ERROR, C_CLEAR);
         command = END;
-        break;
+      break;
       }
 
       printf("\n>> ");
@@ -133,8 +133,10 @@ int main(int argc, char** argv){
 
 	} while(command != END);
 
-  if(!closeMotor(&fd))
+  if(!closeMotor(&fd)){
     printf("%s\nERRO - programa nao foi bem fechado\n%s", C_FATAL_ERROR, C_CLEAR);
+    return 1;
+  }
 
   printf("\n%s⋉  Bye Bye ⋊%s\n", C_MOTOR, C_CLEAR);
 	return 0;
