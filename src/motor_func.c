@@ -6,10 +6,81 @@ char error[MAX_STRING] = "No Error yet lol";
 char* getError(){ return error; }
 
 
-bool ini(int* fd, envVariables* gameSettings){
+bool ini(int* fd, envVariables* gameSettings, gameLevel* levels){
 
   // variaveis de ambiente
+  if(!setGameSettings(gameSettings))
+    return false;
 
+  // carregar mapas
+  if(!loadMaps(levels, gameSettings))
+    return false;
+  
+  // abertura do fifo do backend para leitura
+	if (mkfifo(MOTOR_FIFO, 0666) == -1) {
+		if (errno == EEXIST)
+      sprintf(error, "%sERRO - Servidor em execucao%s", C_FATAL_ERROR, C_CLEAR);
+    else
+      sprintf(error, "%sERRO - Nao foi possivel criar o FIFO%s", C_FATAL_ERROR, C_CLEAR);
+		return false;
+	}
+
+	*fd = open(MOTOR_FIFO, O_RDWR);
+	if (*fd == -1) {
+    sprintf(error, "%sERRO - Nao foi possivel abrir o FIFO%s", C_FATAL_ERROR, C_CLEAR);
+		return false;
+	}
+
+  return true;
+}
+
+bool loadMaps(gameLevel levels[MAX_LEVELS], envVariables* gameSettings){
+
+  FILE* file;
+  char file_name[MAX_STRING];
+  char aux[NUM_COLS];
+
+  for(int i=0; i<MAX_LEVELS; i++){
+
+    // definir o nome do ficheiro a abrir
+    sprintf(file_name, LEVEL_FILE, i);
+    // abrir o ficheiro
+    file = fopen(file_name, "rw");
+    if(file == NULL){ // caso nao exista usa o nivel default
+      FILE* file = fopen(DEFAULT_LEVEL_FILE, "rw");
+      if(file == NULL){
+        sprintf(error, "%sERRO - Nao foi possivel abrir o ficheiro '%s' %s", C_FATAL_ERROR, DEFAULT_LEVEL_FILE, C_CLEAR);
+        return false;
+      }
+    }
+
+    // guardar mapa
+    for (int lin=0; lin < NUM_LINES; lin++){
+      // guardar a linha
+      fgets(aux, sizeof(aux), file);
+      for(int col=0; col < NUM_COLS; col++)
+        levels[i].map[col][lin] = aux[col];
+    }
+    fclose(file);
+    // definir definicoes do niveis
+    levels[i].level = i+1;
+    levels[i].level_time = gameSettings->timer - (gameSettings->timer_dc * i);
+
+  }
+
+  return true;
+
+}
+
+bool closeMotor(int* fd){
+  
+  close(*fd);
+	unlink(MOTOR_FIFO);
+
+  return true;
+}
+
+bool setGameSettings(envVariables* gameSettings){
   char* env = getenv(TIMER);
   if(env != NULL){
     if(sscanf(env, "%d", &gameSettings->timer) != 1){
@@ -53,30 +124,6 @@ bool ini(int* fd, envVariables* gameSettings){
       sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s\n", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
 		return false;
   }
-  
-
-  // abertura do fifo do backend para leitura
-	if (mkfifo(MOTOR_FIFO, 0666) == -1) {
-		if (errno == EEXIST)
-      sprintf(error, "%sERRO - Servidor em execucao%s", C_FATAL_ERROR, C_CLEAR);
-    else
-      sprintf(error, "%sERRO - Nao foi possivel criar o FIFO%s", C_FATAL_ERROR, C_CLEAR);
-		return false;
-	}
-
-	*fd = open(MOTOR_FIFO, O_RDWR);
-	if (*fd == -1) {
-    sprintf(error, "%sERRO - Nao foi possivel abrir o FIFO%s", C_FATAL_ERROR, C_CLEAR);
-		return false;
-	}
-
-  return true;
-}
-
-bool closeMotor(int* fd){
-  
-  close(*fd);
-	unlink(MOTOR_FIFO);
 
   return true;
 }
@@ -95,7 +142,7 @@ int checkCMD(prompt* prmt){
 
     if(strcmp(prmt->args, "") != 0)
       return KICK;
-    sprintf(error, "%serro de formatacao: %skick%s", C_ERROR, C_FERROR, C_CLEAR);
+    sprintf(error, "%serro de formatacao: %skick <nome>%s", C_ERROR, C_FERROR, C_CLEAR);
     return CMD_ERROR;
 
   } else if(strcmp(prmt->command, "bots") == 0){
@@ -202,9 +249,19 @@ int checkCMD_UI(prompt* prmt){
 }
 
 void printSettings(envVariables* gameSettings){
-  printf("\nDuracao de cada nivel: %d\nDecremento: %d\nTempo de Registo: %d\nMinimo de Jogadores: %d\n", gameSettings->timer, gameSettings->timer_dc, gameSettings->reg_time, gameSettings->min_players);
+  printf("\n\t%sDuracao de cada nivel ≻%s %d", C_MESSAGE, C_CLEAR, gameSettings->timer);
+  printf("\n\t%sDecremento ≻%s %d", C_MESSAGE, C_CLEAR, gameSettings->timer_dc);
+  printf("\n\t%sTempo de Registo ≻%s %d", C_MESSAGE, C_CLEAR, gameSettings->reg_time);
+  printf("\n\t%sMinimo de Jogadores ≻%s %d\n", C_MESSAGE, C_CLEAR, gameSettings->min_players);
 }
 
 void printHelp(){
-  printf("\nusers - imprime a lista de todos os jogadores na plantaforma\nkick - expulsa um jogador\nbots - lista os bots\nbmov - insere um bloqueio movel\nrbm - remove um bloqueio movel\nbegin - comeca o jogo\nsettings - mostra as definicoes do jogo\nend - fecha o programa\n");
+  printf("\n\t%susers ≻%s imprime a lista de todos os jogadores na plantaforma", C_MESSAGE, C_CLEAR);
+  printf("\n\t%skick ≻%s expulsa um jogador", C_MESSAGE, C_CLEAR);
+  printf("\n\t%sbots ≻%s lista os bots", C_MESSAGE, C_CLEAR);
+  printf("\n\t%sbmov ≻%s insere um bloqueio movel", C_MESSAGE, C_CLEAR);
+  printf("\n\t%srbm ≻%s remove um bloqueio movel", C_MESSAGE, C_CLEAR);
+  printf("\n\t%sbegin ≻%s comeca o jogo", C_MESSAGE, C_CLEAR);
+  printf("\n\t%ssettings ≻%s mostra as definicoes do jogo", C_MESSAGE, C_CLEAR);
+  printf("\n\t%send ≻%s fecha o programa\n", C_MESSAGE, C_CLEAR);
 }
