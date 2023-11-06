@@ -38,16 +38,16 @@ bool loadMaps(gameLevel levels[MAX_LEVELS], envVariables* gameSettings){
 
   FILE* file;
   char file_name[MAX_STRING];
-  char aux[NUM_COLS];
+  char aux[MAX_STRING];
 
   for(int i=0; i<MAX_LEVELS; i++){
 
     // definir o nome do ficheiro a abrir
     sprintf(file_name, LEVEL_FILE, i);
     // abrir o ficheiro
-    file = fopen(file_name, "rw");
+    file = fopen(file_name, "r");
     if(file == NULL){ // caso nao exista usa o nivel default
-      file = fopen(DEFAULT_LEVEL_FILE, "rw");
+      file = fopen(DEFAULT_LEVEL_FILE, "r");
       if(file == NULL){
         sprintf(error, "%sERRO - Nao foi possivel abrir o ficheiro '%s' %s", C_FATAL_ERROR, DEFAULT_LEVEL_FILE, C_CLEAR);
         return false;
@@ -56,12 +56,12 @@ bool loadMaps(gameLevel levels[MAX_LEVELS], envVariables* gameSettings){
 
     // guardar mapa
     for (int lin=0; lin < NUM_LINES; lin++){
-      // guardar a linha
       fgets(aux, sizeof(aux), file);
       for(int col=0; col < NUM_COLS; col++)
         levels[i].map[col][lin] = aux[col];
     }
     fclose(file);
+    
     // definir definicoes do niveis
     levels[i].level = i+1;
     levels[i].level_time = gameSettings->timer - (gameSettings->timer_dc * i);
@@ -187,6 +187,26 @@ int checkCMD(prompt* prmt){
     sprintf(error, "%serro de formatacao: %shelp%s", C_ERROR, C_FERROR, C_CLEAR);
     return CMD_ERROR;
 
+  } else if(strcmp(prmt->command, "map") == 0){
+    
+    int lvl;
+
+    if(strcmp(prmt->args, "") == 0){
+      sprintf(error, "%serro de formatacao: %smap <nivel>%s", C_ERROR, C_FERROR, C_CLEAR);
+      return CMD_ERROR;
+    }
+
+    if(sscanf(prmt->args, "%d", &lvl) != -1){
+      if(lvl <= 0 || lvl > MAX_LEVELS){
+        sprintf(error, "%serro de formatacao: %so nivel tem de ser um valor entre [ %d , %d ]%s", C_ERROR, C_FERROR, 1, MAX_LEVELS, C_CLEAR);
+        return CMD_ERROR;
+      }
+      return MAP;
+    }
+
+    sprintf(error, "%serro de formatacao: %smap <nivel>%s", C_ERROR, C_FERROR, C_CLEAR);
+    return CMD_ERROR;
+
   } else if(strcmp(prmt->command, "end") == 0){
 
     if(strcmp(prmt->args, "") == 0)
@@ -248,6 +268,19 @@ int checkCMD_UI(prompt* prmt){
 
 }
 
+void printMap(int level, gameLevel levels[MAX_LEVELS]){
+
+  printf("\n%sNivel:%s %d\n", C_MESSAGE, C_CLEAR, levels[level-1].level);
+  printf("%sDuracao:%s %d\n", C_MESSAGE, C_CLEAR, levels[level-1].level_time);
+
+  for(int lin=0; lin < NUM_LINES; lin++){
+    for(int col=0; col < NUM_COLS; col++)
+      putchar(levels[level-1].map[col][lin]); 
+    putchar('\n');
+  }
+
+}
+
 void printSettings(envVariables* gameSettings){
   printf("\n\t%sDuracao de cada nivel ≻%s %d", C_MESSAGE, C_CLEAR, gameSettings->timer);
   printf("\n\t%sDecremento ≻%s %d", C_MESSAGE, C_CLEAR, gameSettings->timer_dc);
@@ -263,5 +296,6 @@ void printHelp(){
   printf("\n\t%srbm ≻%s remove um bloqueio movel", C_MESSAGE, C_CLEAR);
   printf("\n\t%sbegin ≻%s comeca o jogo", C_MESSAGE, C_CLEAR);
   printf("\n\t%ssettings ≻%s mostra as definicoes do jogo", C_MESSAGE, C_CLEAR);
+  printf("\n\t%smap ≻%s mostra o mapa com as suas respetivas definicoes\n", C_MESSAGE, C_CLEAR);
   printf("\n\t%send ≻%s fecha o programa\n", C_MESSAGE, C_CLEAR);
 }
