@@ -8,7 +8,7 @@ char* getError();
 // retorna o ultimo erro ocorrido no sistema
 
 bool ini(int* fd, envVariables* gameSettings, gameLevel* maps);
-// inicia o servidor
+// inicia o motor
 // retorna:     true - inicie
 //              false - em caso de algum erro
 
@@ -23,33 +23,19 @@ bool loadMaps(gameLevel levels[MAX_LEVELS], envVariables* gameSettings);
 //              false - em caso de algum erro
 
 bool closeMotor(int* fd);
-// fecha o servidor
+// fecha o motor
 // retorna:     true - feche
 //              false - em caso de algum erro
 
 int checkCMD(prompt* prmt);
 // verifica o comando pedido pelo Admin
-// retorna:     CMD_ERROR
-//              USERS
-//              KICK
-//              BOTS
-//              BMOV
-//              RBM
-//              BEGIN
-//              END
+// retorna:     o codigo do comando
+//              CMD_ERROR, em caso de algum erro
 
 int checkCMD_UI(prompt* prmt);
 // verifica o comando pedido pela UI
-// retorna:     CMD_ERROR
-//              LOGIN
-//              CHANGE_RD_WR
-//              PLAYERS
-//              MSG
-//              EXIT
-//              UP
-//              DOWN
-//              RIGHT
-//              LEFT
+// retorna:     o codigo do comando
+//              CMD_ERROR, em caso de algum erro
 
 void printMap(int level, gameLevel* levels);
 // imprime o mapa com as suas respetivas definicoes

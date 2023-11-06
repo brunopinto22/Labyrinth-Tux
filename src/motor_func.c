@@ -16,7 +16,7 @@ bool ini(int* fd, envVariables* gameSettings, gameLevel* levels){
   if(!loadMaps(levels, gameSettings))
     return false;
   
-  // abertura do fifo do backend para leitura
+  // abertura do fifo do motor para leitura
 	if (mkfifo(MOTOR_FIFO, 0666) == -1) {
 		if (errno == EEXIST)
       sprintf(error, "%sERRO - Servidor em execucao%s", C_FATAL_ERROR, C_CLEAR);
@@ -28,6 +28,7 @@ bool ini(int* fd, envVariables* gameSettings, gameLevel* levels){
 	*fd = open(MOTOR_FIFO, O_RDWR);
 	if (*fd == -1) {
     sprintf(error, "%sERRO - Nao foi possivel abrir o FIFO%s", C_FATAL_ERROR, C_CLEAR);
+    closeMotor(fd);
 		return false;
 	}
 
@@ -128,7 +129,6 @@ bool setGameSettings(envVariables* gameSettings){
   return true;
 }
 
-
 int checkCMD(prompt* prmt){
 
   if(strcmp(prmt->command, "users") == 0){
@@ -222,7 +222,6 @@ int checkCMD(prompt* prmt){
 
 }
 
-
 int checkCMD_UI(prompt* prmt){
 
   if(strcmp(prmt->command, "up") == 0){
@@ -296,6 +295,6 @@ void printHelp(){
   printf("\n\t%srbm ≻%s remove um bloqueio movel", C_MESSAGE, C_CLEAR);
   printf("\n\t%sbegin ≻%s comeca o jogo", C_MESSAGE, C_CLEAR);
   printf("\n\t%ssettings ≻%s mostra as definicoes do jogo", C_MESSAGE, C_CLEAR);
-  printf("\n\t%smap ≻%s mostra o mapa com as suas respetivas definicoes\n", C_MESSAGE, C_CLEAR);
+  printf("\n\t%smap ≻%s mostra o mapa com as suas respetivas definicoes", C_MESSAGE, C_CLEAR);
   printf("\n\t%send ≻%s fecha o programa\n", C_MESSAGE, C_CLEAR);
 }
