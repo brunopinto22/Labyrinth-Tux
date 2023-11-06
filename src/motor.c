@@ -126,7 +126,8 @@ int main(int argc, char** argv){
       break;
       }
 
-      printf("\n>> ");
+      if(command != END)
+        printf("\n>> ");
 
 		}
 		else if (res > 0 && FD_ISSET(fd, &fds)  && command != END) { // ler os comandos do FIFO
