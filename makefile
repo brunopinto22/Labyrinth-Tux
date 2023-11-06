@@ -1,7 +1,6 @@
-all:
-	motor jogoUI
+all: motor jogoUI
 
-clear:
+clean:
 	rm motor jogoUI FIFO*
 
 motor:
