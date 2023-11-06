@@ -51,6 +51,9 @@ int checkCMD_UI(prompt* prmt);
 //              RIGHT
 //              LEFT
 
+void printMap(int level, gameLevel* levels);
+// imprime o mapa com as suas respetivas definicoes
+
 void printSettings(envVariables* gameSettings);
 // imprime os valores das definicoes do jogo
 

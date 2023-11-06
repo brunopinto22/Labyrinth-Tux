@@ -37,6 +37,7 @@
 #define RBM 5
 #define BEGIN 6
 #define SETTINGS 7
+#define MAP 8
 #define END 0
 // ui:
 #define LOGIN 1

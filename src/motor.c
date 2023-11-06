@@ -106,6 +106,12 @@ int main(int argc, char** argv){
         printSettings(&gameSettings);
       break;
 
+      case MAP:
+        int lvl;
+        sscanf(cmd.args, "%d", &lvl);
+        printMap(lvl, levels);
+      break;
+
       case HELP:
         printHelp();
       break;
