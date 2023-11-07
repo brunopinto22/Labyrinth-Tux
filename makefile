@@ -4,9 +4,9 @@ clean:
 	rm motor jogoUI FIFO*
 
 motor:
-	gcc src/motor.c src/motor_func.c -o motor
+	gcc src/motor.c src/global.c src/motor_func.c -o motor
 
 jogoUI:
-	gcc src/jogoUI.c src/jogoUI_func.c -o jogoUI
+	gcc -o jogoUI src/jogoUI.c src/global.c src/jogoUI_func.c -lncurses
 
 
