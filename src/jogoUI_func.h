@@ -7,7 +7,7 @@
 char* getError();
 // retorna o ultimo erro ocorrido no sistema
 
-bool ini(int* fd, pid_t PID);
+bool ini(int* fd, userInfo user);
 // inicia a UI
 // retorna:     true - inicie
 //              false - em caso de algum erro
