@@ -38,6 +38,8 @@ struct prompt{
 
 typedef struct sharedData sharedData;
 struct sharedData{
+  bool result;
+  char error[MAX_STRING];
 	userInfo user;
 	prompt cmd;
 };
@@ -56,6 +58,13 @@ struct gameLevel{
   int level_time;
   char map[NUM_COLS][NUM_LINES];
 };
+
+// funcoes
+int sendTo(sharedData data, char* destiny);
+// Envia informacao para um fifo indicado
+// Retorna      0 se correr tudo bem
+//              1 se nao conseguir abrir o fifo
+//             -1 se houver algum erro no envio
 
 
 #endif //TP_GLOBAL_H
