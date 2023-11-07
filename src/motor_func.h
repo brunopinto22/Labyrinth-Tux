@@ -27,6 +27,25 @@ bool closeMotor(int* fd);
 // retorna:     true - feche
 //              false - em caso de algum erro
 
+void printUsers(userInfo* users_list, int users_count);
+// imprime os utilizadores ligados ao motor
+
+void addUser(userInfo user_to_add, userInfo* users_list, int* users_count);
+// adiciona um novo utilizador ao motor
+
+int kickUser(char* user_name, userInfo* users_list, int* users_count);
+// expulsa um utilizador do motor
+// retorna:     o pid do utilizador expulso
+//              0 - em caso de algum erro
+
+void closeUIs(userInfo* users, int users_count);
+// fecha todas as UIs ligadas ao motor
+
+bool setGameSettings(envVariables* gameSettings);
+// define as variaveis do jogo
+// retorna:     true - defina
+//              false - em caso de algum erro
+
 int checkCMD(prompt* prmt);
 // verifica o comando pedido pelo Admin
 // retorna:     o codigo do comando
@@ -45,10 +64,5 @@ void printSettings(envVariables* gameSettings);
 
 void printHelp();
 // imprime a lista de comandos
-
-bool sendTo(sharedData* data, userInfo* user);
-// envia para uma UI dados
-// retorna:     true - envie
-//              false - caso falhe
 
 #endif //TP_MOTOR_FUNC_H

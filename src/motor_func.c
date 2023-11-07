@@ -81,48 +81,91 @@ bool closeMotor(int* fd){
   return true;
 }
 
+void printUsers(userInfo* users_list, int users_count){
+  printf("\n%s> Lista de Users <%s\n\n", C_MESSAGE, C_CLEAR);
+  for(int i=0; i < users_count; i++)
+    printf("\t%s≻ %s%s [%d]\n", C_UI, users_list[i].name, C_CLEAR, users_list[i].pid);
+}
+
+void addUser(userInfo user_to_add, userInfo* users_list, int* users_count){
+  users_list[*users_count] = user_to_add;
+  *users_count +=1;
+}
+
+int kickUser(char* user_name, userInfo* users_list, int* users_count){
+  union sigval val;
+  int pid = 0;
+
+  for (int i=0, y=0; i < *users_count; i++, y++){
+		if(strcmp(user_name, users_list[i].name) == 0){
+      pid = users_list[i].pid;
+			y++;
+      sigqueue(users_list[i].pid, SIGUSR2, val);
+		}
+		strcpy(users_list[i].name, users_list[y].name);
+		users_list[i].pid = users_list[y].pid;
+	}
+
+
+  if(pid == 0)
+    sprintf(error, "%sERRO - Nao foi encontrado nenhum utilizador chamado '%s'%s", C_ERROR, user_name,C_CLEAR);
+  else
+    *users_count -= 1;
+
+  return pid;
+}
+
+void closeUIs(userInfo* users, int users_count){
+
+  union sigval val;
+  for(int i=0; i < users_count; i++)
+		sigqueue(users[i].pid, SIGUSR1, val);
+
+}
+
+
 bool setGameSettings(envVariables* gameSettings){
   char* env = getenv(TIMER);
   if(env != NULL){
     if(sscanf(env, "%d", &gameSettings->timer) != 1){
-      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s\n", C_FATAL_ERROR, TIMER,C_CLEAR);
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao int%s", C_FATAL_ERROR, TIMER,C_CLEAR);
 		  return false;
     }
   } else {
-    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s\n", C_FATAL_ERROR, TIMER,C_CLEAR);
+    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, TIMER,C_CLEAR);
 		return false;
   }
 
   env = getenv(TIME_REG);
   if(env != NULL){
     if(sscanf(env, "%d", &gameSettings->reg_time) != 1){
-      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s\n", C_FATAL_ERROR, TIME_REG,C_CLEAR);
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao int%s", C_FATAL_ERROR, TIME_REG,C_CLEAR);
 		  return false;
     }
   } else {
-    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s\n", C_FATAL_ERROR, TIME_REG,C_CLEAR);
+    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, TIME_REG,C_CLEAR);
 		return false;
   }
 
   env = getenv(TIMER_DECREMENT);
   if(env != NULL){
     if(sscanf(env, "%d", &gameSettings->timer_dc) != 1){
-      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s\n", C_FATAL_ERROR, TIMER_DECREMENT,C_CLEAR);
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao int%s", C_FATAL_ERROR, TIMER_DECREMENT,C_CLEAR);
 		  return false;
     }
   } else {
-    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s\n", C_FATAL_ERROR, TIMER_DECREMENT,C_CLEAR);
+    sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, TIMER_DECREMENT,C_CLEAR);
 		return false;
   }
 
   env = getenv(MIN_USERS);
   if(env != NULL){
     if(sscanf(env, "%d", &gameSettings->min_players) != 1){
-      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao nao int%s\n", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
+      sprintf(error, "%sERRO - a variavel de ambiente %s tem um valor nao int%s", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
 		  return false;
     }
     } else {
-      sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s\n", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
+      sprintf(error, "%sERRO - Nao foi possivel encontrar a variavel de ambiente %s%s", C_FATAL_ERROR, MIN_USERS,C_CLEAR);
 		return false;
   }
 
@@ -224,7 +267,10 @@ int checkCMD(prompt* prmt){
 
 int checkCMD_UI(prompt* prmt){
 
-  if(strcmp(prmt->command, "up") == 0){
+  if(strcmp(prmt->command, "login") == 0){
+    return LOGIN;
+
+  } else if(strcmp(prmt->command, "up") == 0){
 
     if(strcmp(prmt->args, "") == 0)
       return UP;
@@ -257,10 +303,7 @@ int checkCMD_UI(prompt* prmt){
     return CMD_ERROR;
 
   } else if(strcmp(prmt->command, "exit") == 0){
-
-    if(strcmp(prmt->args, "") == 0)
       return EXIT;
-    return CMD_ERROR;
 
   } else 
     return CMD_ERROR; 
