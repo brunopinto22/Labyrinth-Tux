@@ -2,8 +2,7 @@
 
 // vars globais
 #define PID getpid()
-int fd, command = CLEAR;
-
+int command = CLEAR;
 
 void closeSig(){
   command = END;
@@ -15,10 +14,17 @@ int main(int argc, char** argv){
   setbuf(stdout, NULL);
 	setbuf(stdin, NULL);
 
+  // vars do motor
+  int fd;
+  int users_count = 0;
+  userInfo users[MAX_USERS];
+
   // vars de comunicacao
 	prompt cmd;
 	char string[MAX_STRING];
-  sharedData sharedCmd;
+  sharedData data;
+  int result, commandUI = CLEAR;
+  char fifoUi[MAX_STRING];
 
   // vars de jogo
   envVariables gameSettings;
@@ -63,8 +69,8 @@ int main(int argc, char** argv){
 			scanf("%[^\n]", string);
       setbuf(stdin, NULL);
 
+      // verificar comando
       sscanf(string, "%s %[^\n]", cmd.command, cmd.args);
-
       command = checkCMD(&cmd);
 
       switch (command) {
@@ -73,13 +79,15 @@ int main(int argc, char** argv){
       break;
 
       case USERS:
-        printf(">> lista users <<\n");
-        // printUsers();
+        printUsers(users, users_count);
       break;
 
       case KICK:
-        printf(">> kick %s<<\n", cmd.args);
-        // kick(&cmd);
+        result = kickUser(cmd.args, users, &users_count);
+        if(result == 0)
+          printf("\n%s\n", getError());
+        else
+          printf("\n%s[%d] : Foi expulso %s\n", C_MESSAGE, result, C_CLEAR);
       break;
 
       case BOTS:
@@ -130,12 +138,49 @@ int main(int argc, char** argv){
         printf("\n>> ");
 
 		}
-		else if (res > 0 && FD_ISSET(fd, &fds)  && command != END) { // ler os comandos do FIFO
+		else if (res > 0 && FD_ISSET(fd, &fds) && command != END) { // ler os comandos do FIFO
+			if (read(fd, &data, sizeof(data)) > 0) {
+        // guardar destinatario
+        sprintf(fifoUi, UI_FIFO, data.user.pid);
+        data.result = true;
 
-			if (read(fd, &sharedCmd, sizeof(sharedData)) > 0) {
-				printf("\n>> ");
+        // verificar comando
+        commandUI = checkCMD_UI(&data.cmd);
+
+        switch (commandUI) {
+        case LOGIN:          
+          if(users_count >= MAX_USERS){
+            data.result = false;
+            sprintf(data.error, "%sNumero maximo de jogadores permitidos atingido%s", C_FATAL_ERROR, C_CLEAR);
+          } else {
+            printf("\n\n%s[%d] : Fez login como '%s'%s\n",C_MESSAGE, data.user.pid, data.user.name, C_CLEAR);
+            addUser(data.user, users, &users_count);
+          }
+        break;
+
+        case EXIT:
+          result = kickUser(data.user.name, users, &users_count);
+          printf("\n\n%s[%d] : Saiu %s\n", C_MESSAGE, result, C_CLEAR);
+        break;
+        
+        default:
+          printf("\n\n%sERRO - nao devia de ter chegado aqui%s\n", C_FATAL_ERROR, C_CLEAR);
+          commandUI = CMD_ERROR;
+        break;
+        }
+        
+        // enviar resultado
+        if(commandUI != CMD_ERROR && commandUI != EXIT){
+          result = sendTo(data, fifoUi);
+          if(result == 1)
+            printf("%s\nERRO - nao foi possivel abrir %s\n%s", C_ERROR, fifoUi, C_CLEAR);
+          else if(result == -1)
+            printf("%s\nERRO - falha no envio\n%s", C_ERROR, C_CLEAR);
+        }
+
+        printf("\n>> ");
+        
 			}
-
 		}
 
 	} while(command != END);
@@ -144,6 +189,8 @@ int main(int argc, char** argv){
     printf("%s\nERRO - programa nao foi bem fechado\n%s", C_FATAL_ERROR, C_CLEAR);
     return 1;
   }
+
+  closeUIs(users, users_count);
 
   printf("\n%s⋉  Bye Bye ⋊%s\n", C_MOTOR, C_CLEAR);
 	return 0;
