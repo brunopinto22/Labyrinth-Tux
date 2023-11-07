@@ -44,11 +44,11 @@
 #define CHANGE_RD_WR 2
 #define PLAYERS 3
 #define MSG 4
-#define EXIT 0
 #define UP 5
 #define DOWN 6
 #define RIGHT 7
 #define LEFT 8
+#define EXIT 0
 
 // cores
 #define C_CLEAR "\033[0m"
