@@ -48,6 +48,7 @@
 #define DOWN 6
 #define RIGHT 7
 #define LEFT 8
+#define KICKED 9
 #define EXIT 0
 
 // cores
