@@ -6,10 +6,10 @@ char fifo[MAX_STRING];
 
 char* getError(){ return error; }
 
-bool ini(int* fd, userInfo user){
+bool ini(int* fd, sharedData data){
 
   // guardar nome da fifo
-  sprintf(fifo, UI_FIFO, user.pid);
+  sprintf(fifo, UI_FIFO, data.user.pid);
 
   // criacao do fifo da ui
 	if (mkfifo(fifo, 0666) == -1) {
@@ -20,7 +20,7 @@ bool ini(int* fd, userInfo user){
 	*fd = open(fifo, O_RDWR);
 	if (*fd == -1) {
     sprintf(error, "%sERRO - Nao foi possivel abrir o FIFO%s", C_FATAL_ERROR, C_CLEAR);
-    closeUI(fd);
+    closeUI(fd, data, false);
 		return false;
 	}
 
@@ -28,20 +28,18 @@ bool ini(int* fd, userInfo user){
 	int fd_motor = open(MOTOR_FIFO, O_WRONLY);
 	if (fd_motor == -1){
     sprintf(error, "%sERRO - o Motor nao esta a correr%s", C_FATAL_ERROR, C_CLEAR);
-    closeUI(fd);
+    closeUI(fd, data, false);
 		return false;
 	}
   close(fd_motor);
 
 
   // registar no motor
-  sharedData data;
-  data.user = user;
   strcpy(data.cmd.command, "login");
   // enviar para o motor
   int result = sendTo(data, MOTOR_FIFO);
   if(result != 0){
-    closeUI(fd);
+    closeUI(fd, data, false);
     if(result == 1)
       sprintf(error, "%sERRO - nao foi possivel abrir o FIFO do Motor%s", C_FATAL_ERROR, C_CLEAR);
     else
@@ -52,8 +50,8 @@ bool ini(int* fd, userInfo user){
   // receber resposta
 	read(*fd, &data, sizeof(data));
   if(data.result == false){
-    closeUI(fd);
-    sprintf(error, data.error);
+    closeUI(fd, data, false);
+    strcpy(error, data.error);
     return false;
   }
 
@@ -61,7 +59,18 @@ bool ini(int* fd, userInfo user){
 
 }
 
-bool closeUI(int* fd){
+bool closeUI(int* fd, sharedData data, bool kicked){
+
+  // avisar o motor
+  if(!kicked){
+    strcpy(data.cmd.command, "exit");
+    int result = sendTo(data, MOTOR_FIFO);
+    if(result == 1)
+      printf("%sERRO - nao foi possivel abrir %s\n%s", C_ERROR, MOTOR_FIFO, C_CLEAR);
+    else if(result == -1)
+      printf("%sERRO - falha no envio\n%s", C_ERROR, C_CLEAR);
+  }
+
   close(*fd);
 	unlink(fifo);
 
@@ -70,58 +79,33 @@ bool closeUI(int* fd){
 
 int checkCMD(prompt* prmt){
 
-  if(strcmp(prmt->command, "up") == 0){
-
-    if(strcmp(prmt->args, "") == 0)
-      return UP;
-    return CMD_ERROR;
-
-  } else if(strcmp(prmt->command, "down") == 0){
-
-    if(strcmp(prmt->args, "") == 0)
-      return DOWN;
-    return CMD_ERROR;
-
-  } else if(strcmp(prmt->command, "right") == 0){
-
-    if(strcmp(prmt->args, "") == 0)
-      return RIGHT;
-    return CMD_ERROR;
-
-  } else if(strcmp(prmt->command, "left") == 0){
-
-    if(strcmp(prmt->args, "") == 0)
-      return LEFT;
-    return CMD_ERROR;
-
-  } else if(strcmp(prmt->command, "space") == 0){
-
-    if(strcmp(prmt->args, "") == 0)
-      return CHANGE_RD_WR;
-    return CMD_ERROR;
-
-  } else if(strcmp(prmt->command, "msg") == 0){
+  if(strcmp(prmt->command, "msg") == 0){
 
     char pl[MAX_STRING], msg[MAX_STRING];
 
     if(sscanf(prmt->args, "%s %[^\n]", pl, msg) > 0);
       return MSG;
+    strcpy(error, "erro de formatacao: msg <jogador> <mensagem>");
     return CMD_ERROR;
 
   } else if(strcmp(prmt->command, "help") == 0){
 
     if(strcmp(prmt->args, "") == 0)
-        return HELP;
+      return HELP;
+    strcpy(error, "erro de formatacao: help");
     return CMD_ERROR;
 
   } else if(strcmp(prmt->command, "exit") == 0){
 
     if(strcmp(prmt->args, "") == 0)
       return EXIT;
+    strcpy(error, "erro de formatacao: exit");
     return CMD_ERROR;
 
-  } else 
+  } else {
+    strcpy(error, "erro de formatacao: o comando nao existe");
     return CMD_ERROR; 
+  }
 
 }
 
