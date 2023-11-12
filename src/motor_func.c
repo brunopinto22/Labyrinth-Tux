@@ -82,7 +82,7 @@ bool closeMotor(int* fd){
 }
 
 void printUsers(userInfo* users_list, int users_count){
-  printf("\n%s> Lista de Users <%s\n\n", C_MESSAGE, C_CLEAR);
+  printf("\n%s> Lista de Users <%s\n", C_MESSAGE, C_CLEAR);
   for(int i=0; i < users_count; i++)
     printf("\t%s≻ %s%s [%d]\n", C_UI, users_list[i].name, C_CLEAR, users_list[i].pid);
 }
