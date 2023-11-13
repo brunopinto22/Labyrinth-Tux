@@ -1,9 +1,9 @@
 #ifndef TP_STYLE_H
 #define TP_STYLE_H
 
-#include "global.h"
-#include "jogoUI_func.h"
 #include <ncurses.h>
+#include "jogoUI_func.h"
+#include "../global.h"
 
 #define WN_SIZE_SIDES 30
 #define WN_SIZE_COLS (NUM_COLS+WN_SIZE_SIDES*2)

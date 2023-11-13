@@ -1,7 +1,7 @@
 #ifndef TP_JOGOUI_FUNC_H
 #define TP_JOGOUI_FUNC_H
 
-#include "global.h"
+#include "../global.h"
 
 // funcoes
 char* getError();

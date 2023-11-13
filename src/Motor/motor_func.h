@@ -1,7 +1,7 @@
 #ifndef TP_MOTOR_FUNC_H
 #define TP_MOTOR_FUNC_H
 
-#include "global.h"
+#include "../global.h"
 
 // funcoes
 char* getError();
