@@ -2,7 +2,7 @@
 
 # Labyrinth-Tux
 Labyrinth Game for Linux, with a server/client architecture.
-> This game was made as an university project <br> <a>enuciado.pdf</a>
+> This game was made as an university project
 
 <br>
 
