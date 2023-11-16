@@ -124,6 +124,52 @@ int main(int argc, char** argv){
         printHelp();
       break;
 
+      case TESTBOT:
+        int x,y;
+        char buffer[MAX_STRING];
+        ssize_t bytes;
+
+        int pipefd[2];
+        if(pipe(pipefd) == -1){
+          printf("\n%sERRO - a criacao do pipe falhou%s\n", C_FATAL_ERROR, C_CLEAR);
+          command = END;
+        }
+
+        pid_t p = fork();
+        if(p == -1){
+          printf("\n%sERRO - o fork falhou%s\n", C_FATAL_ERROR, C_CLEAR);
+          command = END;
+        }
+
+        if(p == 0){ // processo filho
+          close(pipefd[0]);
+          dup2(pipefd[1], STDOUT_FILENO);
+          close(pipefd[1]);
+          
+          // executar o bot de teste
+          execl("./testbot", "testbot", NULL);
+
+          // caso nao execute
+          printf("\n%sERRO - a execucao do testbot falhou%s\n", C_FATAL_ERROR, C_CLEAR);
+          command = END;
+
+        } else { // processo pai
+
+          close(pipefd[1]);
+
+          // esperar para receber valores
+          while((bytes = read(pipefd[0], buffer, sizeof(buffer))) > 0){}
+
+          close(pipefd[0]);
+          wait(NULL);
+        }
+        
+        // imprimir valor recebido
+        sscanf(buffer, "%d %d", &x, &y);
+        printf("\nRecebi x=%d y=%d\n", x, y);
+
+      break;
+
       case END:
         // sair
       break;

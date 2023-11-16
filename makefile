@@ -1,4 +1,4 @@
-all: motor jogoUI
+all: motor jogoUI testBot
 
 clean:
 	rm motor jogoUI FIFO*
@@ -9,4 +9,5 @@ motor:
 jogoUI:
 	gcc -o jogoUI src/JogoUI/jogoUI.c src/JogoUI/style.c src/global.c src/JogoUI/jogoUI_func.c -lncurses
 
-
+testBot:
+	gcc -o testbot src/test_bot.c

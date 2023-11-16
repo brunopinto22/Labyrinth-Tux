@@ -250,7 +250,14 @@ int checkCMD(prompt* prmt){
     sprintf(error, "%serro de formatacao: %smap <nivel>%s", C_ERROR, C_FERROR, C_CLEAR);
     return CMD_ERROR;
 
-  } else if(strcmp(prmt->command, "end") == 0){
+  } else if(strcmp(prmt->command, "test_bot") == 0){
+
+    if(strcmp(prmt->args, "") == 0)
+      return TESTBOT;
+    sprintf(error, "%serro de formatacao: %stest_bot%s", C_ERROR, C_FERROR, C_CLEAR);
+    return CMD_ERROR;
+
+  } if(strcmp(prmt->command, "end") == 0){
 
     if(strcmp(prmt->args, "") == 0)
       return END;

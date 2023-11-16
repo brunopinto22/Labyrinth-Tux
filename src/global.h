@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <signal.h>
 #include <errno.h>
 #include <time.h>
@@ -17,10 +18,23 @@
 
 
 // estruturas
+typedef struct gameLevel gameLevel;
+struct gameLevel{
+  int level;
+  int level_time;
+  char map[NUM_COLS][NUM_LINES];
+};
+
 typedef struct coordinates coordinates;
 struct coordinates{
 	int x;
   int y;
+};
+
+typedef struct score score;
+struct score{
+  int time;
+  char player[MAX_STRING];
 };
 
 typedef struct userInfo userInfo;
@@ -38,10 +52,19 @@ struct prompt{
 
 typedef struct sharedData sharedData;
 struct sharedData{
+  // resultado da opecacao
   bool result;
   char error[MAX_STRING];
+
 	userInfo user;
 	prompt cmd;
+
+  // informacao do nivel
+  gameLevel level;
+
+  // pontuacoes globais
+  bool newScore;
+  score latest_score;
 };
 
 typedef struct envVariables envVariables;
@@ -50,13 +73,6 @@ struct envVariables{
   int min_players;    // num. minimo de jogares
   int timer;          // duracao de cada nivel
   int timer_dc;       // decremento por nivel
-};
-
-typedef struct gameLevel gameLevel;
-struct gameLevel{
-  int level;
-  int level_time;
-  char map[NUM_COLS][NUM_LINES];
 };
 
 // funcoes
