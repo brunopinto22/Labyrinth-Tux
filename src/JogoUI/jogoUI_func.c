@@ -49,7 +49,7 @@ bool ini(int* fd, sharedData data){
 
   // receber resposta
 	read(*fd, &data, sizeof(data));
-  if(data.result == false){
+  if(!data.result){
     closeUI(fd, data, false);
     strcpy(error, data.error);
     return false;
