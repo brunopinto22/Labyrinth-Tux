@@ -13,6 +13,7 @@
 #define MAX_BMOV 5
 #define NUM_COLS 40
 #define NUM_LINES 17
+#define MAX_TIME_BOT 60
 
 // vars de ambiente
 #define TIME_REG "INSCRICAO"

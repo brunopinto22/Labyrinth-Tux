@@ -125,7 +125,7 @@ int main(int argc, char** argv){
       break;
 
       case TESTBOT:
-        int x,y;
+        int x,y,t;
         char buffer[MAX_STRING];
         ssize_t bytes;
 
@@ -165,8 +165,8 @@ int main(int argc, char** argv){
         }
         
         // imprimir valor recebido
-        sscanf(buffer, "%d %d", &x, &y);
-        printf("\nRecebi x=%d y=%d\n", x, y);
+        sscanf(buffer, "%d %d %d", &x, &y, &t);
+        printf("\nRecebi x=%d y=%d durancao=%d\n", x, y, t);
 
       break;
 

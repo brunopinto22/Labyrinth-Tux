@@ -5,12 +5,13 @@
 
 int main(){
   
-  int x,y;
+  int x,y,t;
   
   srand(time(NULL));
   x=1+rand()%NUM_LINES;
   y=1+rand()%NUM_COLS;
+  t=1+rand()%MAX_TIME_BOT;
   
-  printf("%d %d",x,y);
+  printf("%d %d %d",x,y,t);
   
 }
