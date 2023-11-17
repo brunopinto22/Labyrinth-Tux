@@ -1,7 +1,7 @@
 #include "style.h"
 
 WINDOW* title;
-WINDOW* score;
+WINDOW* scoreBoard;
 WINDOW* map;
 WINDOW* input;
 WINDOW* output;
@@ -15,18 +15,23 @@ void setupWindow(){
   keypad(stdscr, TRUE);  // habilita as teclas  especiais
   attrset(A_DIM);  //altera o brilho no print das janelas
 
+  start_color();  // inicar cor
+  // definir cores
+  init_pair(ERROR_COLOR, COLOR_RED, COLOR_BLACK);
+  init_pair(TITLE_COLOR, COLOR_CYAN, COLOR_BLACK); 
+
   title = newwin(3, WN_SIZE_COLS, 0, 0);
 
-  score = newwin(NUM_LINES+WN_SIZE_IN_OUT*2, WN_SIZE_SIDES, 3, 0);
+  scoreBoard = newwin(NUM_LINES+WN_SIZE_IN_OUT, WN_SIZE_SIDES, 3, 0);
 
   map = newwin(NUM_LINES, NUM_COLS, 3, WN_SIZE_SIDES);
   input = newwin(WN_SIZE_IN_OUT, NUM_COLS, NUM_LINES+3, WN_SIZE_SIDES);
-  output = newwin(WN_SIZE_IN_OUT, NUM_COLS, NUM_LINES+WN_SIZE_IN_OUT+3, WN_SIZE_SIDES);
+  output = newwin(WN_SIZE_IN_OUT, WN_SIZE_COLS, 3+NUM_LINES+WN_SIZE_IN_OUT, 0);
 
-  messages = newwin(NUM_LINES+WN_SIZE_IN_OUT*2, WN_SIZE_SIDES, 3, WN_SIZE_SIDES+NUM_COLS);
+  messages = newwin(NUM_LINES+WN_SIZE_IN_OUT, WN_SIZE_SIDES, 3, WN_SIZE_SIDES+NUM_COLS);
 
   keypad(map, TRUE);
-  wmove(input, 1, 1);
+  wmove(input, 2, 2);
 
 }
 
@@ -38,20 +43,23 @@ void printOneWindow(WINDOW* window, bool lock){
     wclear(window);// limpa a janela
   }
 
+  keypad(window, TRUE);
   wborder(window, '|', '|', '-', '-', '+', '+', '+', '+'); // Desenha uma borda. Nota importante: tudo o que escreverem, devem ter em conta a posição da borda
   refresh(); // necessário para atualizar a janela
   wrefresh(window); // necessário para atualizar a janela
 }
 
-void printWindow(sharedData* data, bool reading){
+void printWindow(sharedData* data){
 
   printOneWindow(title, false);
-  printOneWindow(score, false);
+  printOneWindow(scoreBoard, false);
   printOneWindow(output, false);
   printOneWindow(messages, false);
 
-  printOneWindow(map, !reading);
-  printOneWindow(input, reading);
+  printOneWindow(map, true);
+  printOneWindow(input, false);
+
+  printTitle(data->user, 0, 0);
 
   wmove(input, 2, 2);
 
@@ -60,8 +68,8 @@ void printWindow(sharedData* data, bool reading){
 int readKeyboard(){
 
   printOneWindow(input, false);
+  mvwprintw(input, 1, 1, ">> ");
   wrefresh(input);
-  wmove(input, 1, 1);
 
   int key = wgetch(map);
   char string[100];
@@ -79,14 +87,11 @@ int readKeyboard(){
     return DOWN;
   else if (key == ' '){
     echo();
-    wprintw(input, ">> ");
     wgetstr(input, string);
     noecho();
     wrefresh(input);
 
     sscanf(string, "%s %[^\n]", cmd.command, cmd.args);
-
-    printOutput(cmd.command);
 
     return checkCMD(&cmd);
   }
@@ -95,22 +100,34 @@ int readKeyboard(){
 
 }
 
-void printOutput(char* message){
+void printTitle(userInfo user, int time, int score){
 
-  //printOneWindow(output, false);
-  wprintw(output, "%s", message);
+  printOneWindow(title, false);
+  mvwprintw(title, 1, 1, "\t%s[%d]\tTimer: %d\tScore: %d", user.name, user.pid, time, score);
+  wrefresh(title);
+  wmove(input, 2, 2);
+
+}
+
+void printOutput(char* message, bool isError){
+
+  printOneWindow(output, false);
+  mvwprintw(output, 1, 1, "%s", message);
   wrefresh(output);
+  wmove(input, 1, 1);
 
 }
 
 void closeWindow(){
+  echo();
+
   wclear(title);
   wrefresh(title);
   delwin(title);
 
-  wclear(score);
-  wrefresh(score);
-  delwin(score);
+  wclear(scoreBoard);
+  wrefresh(scoreBoard);
+  delwin(scoreBoard);
 
   wclear(output);
   wrefresh(output);

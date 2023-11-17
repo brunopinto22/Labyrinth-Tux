@@ -9,16 +9,22 @@
 #define WN_SIZE_COLS (NUM_COLS+WN_SIZE_SIDES*2)
 #define WN_SIZE_IN_OUT 7
 
+#define ERROR_COLOR 1
+#define TITLE_COLOR 2
+
 void setupWindow();
 // inicia ncurses
 
-void printWindow(sharedData* data, bool reading);
+void printWindow(sharedData* data);
 // imprime as janelas
 
 int readKeyboard(); 
 // ler o teclado
 
-void printOutput(char* message);
+void printTitle(userInfo user, int time, int score);
+// imprime o titulo
+
+void printOutput(char* message, bool isError);
 // imprime o output
 
 void printMessage(char* message);
