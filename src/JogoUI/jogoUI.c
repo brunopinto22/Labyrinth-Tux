@@ -8,7 +8,7 @@ int command = CLEAR;
 void closeSig(){
   // fechar janela
   closeWindow();
-
+    
   command = EXIT;
 }
 
@@ -37,7 +37,6 @@ int main(int argc, char** argv){
   // vars da UI
   int fd;
   userInfo user;
-  bool reading = false;
 
   // vars de comunicacao
 	prompt cmd;
@@ -75,7 +74,7 @@ int main(int argc, char** argv){
 	signal(SIGUSR1, closeMotor);
 	signal(SIGUSR2, closeKick);
 
-  printWindow(&data, reading);
+  printWindow(&data);
 	do{
 
 		// limpar a vars
@@ -96,32 +95,33 @@ int main(int argc, char** argv){
         printf("%s\nERRO - programa nao foi bem fechado\n\n%s", C_FATAL_ERROR, C_CLEAR);
       return 1;
 		}
-		else if (res > 0 && FD_ISSET(0, &fds) && command != EXIT && command != KICKED) { // ler os comandos do ADMIN
+		else if (res > 0 && FD_ISSET(0, &fds) && command != EXIT && command != KICKED) { // ler os comandos da UI
 			
       command = readKeyboard();
 
       switch (command) {
       case CMD_ERROR:
-        printOutput(getError());
+        printOutput(getError(), true);
       break;
 
       case UP:
-        printOutput("andei para cima");
+        printOutput("andei para cima", false);
       break;
 
       case DOWN:
-        printOutput("andei para baixo");
+        printOutput("andei para baixo", false);
       break;
 
       case RIGHT:
-        printOutput("andei para a direita");
+        printOutput("andei para a direita", false);
       break;
 
       case LEFT:
-        printOutput("andei para a esquerda");
+        printOutput("andei para a esquerda", false);
       break;
 
       case MSG:
+        printOutput("mandei msg", false);
       break;
 
       case HELP:
@@ -138,7 +138,7 @@ int main(int argc, char** argv){
       }
 
 		}
-		else if (res > 0 && FD_ISSET(fd, &fds)  && command != EXIT && command != KICKED) { // ler os comandos do FIFO
+		else if (res > 0 && FD_ISSET(fd, &fds)  && command != EXIT && command != KICKED) { // ler o FIFO
 
 			if (read(fd, &data, sizeof(data)) > 0) {
 				
