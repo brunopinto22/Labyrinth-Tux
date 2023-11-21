@@ -1,10 +1,12 @@
 #include "jogoUI_func.h"
 
-char error[MAX_STRING] = "No Error yet lol";
+char error[MAX_ERROR] = "No Error yet lol";
 char fifo[MAX_STRING];
 
 
 char* getError(){ return error; }
+
+void setError(char* message){ strcpy(error, message); }
 
 bool ini(int* fd, sharedData data){
 
@@ -49,9 +51,9 @@ bool ini(int* fd, sharedData data){
 
   // receber resposta
 	read(*fd, &data, sizeof(data));
+  strcpy(error, data.error);
   if(!data.result){
-    closeUI(fd, data, false);
-    strcpy(error, data.error);
+    closeUI(fd, data, true);
     return false;
   }
 

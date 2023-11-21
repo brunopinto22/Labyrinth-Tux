@@ -7,6 +7,9 @@
 char* getError();
 // retorna o ultimo erro ocorrido no sistema
 
+void setError(char* message);
+// reescreve o erro
+
 bool ini(int* fd, sharedData data);
 // inicia a UI
 // retorna:     true - inicie
