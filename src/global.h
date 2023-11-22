@@ -42,6 +42,7 @@ struct userInfo{
 	pid_t pid;
 	char name[MAX_STRING];
   coordinates coords;
+  bool inGame;
 };
 
 typedef struct prompt prompt;
@@ -52,9 +53,9 @@ struct prompt{
 
 typedef struct sharedData sharedData;
 struct sharedData{
-  // resultado da opecacao
+  // resultado da operacao
   bool result;
-  char error[MAX_STRING];
+  char error[MAX_ERROR];
 
 	userInfo user;
 	prompt cmd;
