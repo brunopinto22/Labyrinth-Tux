@@ -75,6 +75,9 @@ int main(int argc, char** argv){
 		FD_ZERO(&fds);
     cmd.command[0] = 0;
 		cmd.args[0] = 0;
+    user.pid = PID;
+    strcpy(user.name, argv[1]);
+    data.user = user;
 
 		// canais para estar atento
 		FD_SET(0, &fds);
@@ -119,11 +122,26 @@ int main(int argc, char** argv){
       break;
 
       case MSG:
+        
+        // guardar o destinatario
+        char name[MAX_STRING];
+        sscanf(data.cmd.args, "%s", name);
+        
+        // verificar se o destinatario e o proprio utilizador
+        if(strcmp(name, data.user.name) == 0){
+          strcpy(data.error, "ERRO - nao pode enviar uma mensagem para si proprio");
+          printOutput(data.error, true);
+          break;
+        }
+
         result = sendTo(data, MOTOR_FIFO);
+        sprintf(data.error, "mensagem enviada para \'%s\'", name);
         if(result == 1)
-          printf("%s\nERRO - nao foi possivel abrir %s\n%s", C_ERROR, MOTOR_FIFO, C_CLEAR);
+          sprintf(data.error, "ERRO - nao foi possivel abrir %s", MOTOR_FIFO);
         else if(result == -1)
-          printf("%s\nERRO - falha no envio\n%s", C_ERROR, C_CLEAR);
+          strcpy(data.error, "ERRO - falha no envio");
+        printOutput(data.error, !result != 0);
+        
       break;
 
       case HELP:
