@@ -16,7 +16,7 @@ int main(int argc, char** argv){
 
   // vars do motor
   int fd;
-  int users_count = 0;
+  int usersCount = 0;
   userInfo users[MAX_USERS];
 
   // vars de comunicacao
@@ -27,6 +27,8 @@ int main(int argc, char** argv){
   char fifoUi[MAX_STRING];
 
   // vars de jogo
+  bool isGameStarted = false;
+  int inGameUsers = 0;
   envVariables gameSettings;
   gameLevel levels[MAX_LEVELS];
 
@@ -79,11 +81,11 @@ int main(int argc, char** argv){
       break;
 
       case USERS:
-        printUsers(users, users_count);
+        printUsers(users, usersCount);
       break;
 
       case KICK:
-        result = kickUser(cmd.args, users, &users_count);
+        result = kickUser(cmd.args, users, &usersCount, &inGameUsers);
         if(result == 0)
           printf("\n%s\n", getError());
         else
@@ -194,22 +196,56 @@ int main(int argc, char** argv){
         commandUI = checkCMD_UI(&data.cmd);
 
         switch (commandUI) {
-        case LOGIN:          
-          if(users_count >= MAX_USERS){
+        case LOGIN: 
+          // verificar se tem espaco para mais um jogador         
+          if(usersCount >= MAX_USERS){
             data.result = false;
             sprintf(data.error, "%sNumero maximo de jogadores permitidos atingido%s", C_FATAL_ERROR, C_CLEAR);
+
           } else {
-            printf("\n\n%s[%d] : Fez login como '%s'%s\n",C_MESSAGE, data.user.pid, data.user.name, C_CLEAR);
-            addUser(data.user, users, &users_count);
+            printf("\n\n%s[%d] : Fez login como '%s'%s\n", C_ONLINE, data.user.pid, data.user.name, C_CLEAR);
+            addUser(data.user, users, &usersCount, &inGameUsers, isGameStarted);
+            
+            // verifica o estado do jogador e define a mensagem conforme
+            if(users[usersCount-1].inGame)
+              strcpy(data.error, "O jogo comecera em pouco tempo");
+            else
+              strcpy(data.error, "Espere que o jogo atual acabe");
+
           }
         break;
 
+        case MSG:
+          // guardar o destinatario e o nome
+          char name[MAX_STRING], text[MAX_STRING];
+          sscanf(data.cmd.args, "%s %[^\n]", name, text);
+
+          // guardar mensagem
+          sprintf(data.error, "[%s] : %s", data.user.name, text);
+
+          // verificar se utilizador existe
+          result = userExists(name, users, usersCount);
+          if(result == 0){
+            data.result = false;
+            sprintf(data.error, "O utilizador \'%s\' nao existe", name);
+            strcpy(data.cmd.command, "msg");
+
+          } else {
+            sprintf(fifoUi, UI_FIFO, result);
+            printf("\n\n%s[%d] : Enviou para \'%s\' \"%s\" %s\n", C_MESSAGE, data.user.pid, name, text, C_CLEAR);
+          }
+          
+        break;
+
         case EXIT:
-          result = kickUser(data.user.name, users, &users_count);
-          printf("\n\n%s[%d] : Saiu %s\n", C_MESSAGE, result, C_CLEAR);
+          // remove o utilizador do motor
+          result = kickUser(data.user.name, users, &usersCount, &inGameUsers);
+          printf("\n\n%s[%d] : Saiu %s\n", C_ERROR, result, C_CLEAR);
+
         break;
         
         default:
+          // so deve chegar aqui caso algo esteja mal com o proprio codigo
           printf("\n\n%sERRO - nao devia de ter chegado aqui%s\n", C_FATAL_ERROR, C_CLEAR);
           commandUI = CMD_ERROR;
         break;
@@ -236,7 +272,7 @@ int main(int argc, char** argv){
     return 1;
   }
 
-  closeUIs(users, users_count);
+  closeUIs(users, usersCount);
 
   printf("\n%s⋉  Bye Bye ⋊%s\n", C_MOTOR, C_CLEAR);
 	return 0;

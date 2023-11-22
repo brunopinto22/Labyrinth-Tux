@@ -7,6 +7,8 @@ WINDOW* input;
 WINDOW* output;
 WINDOW* messages;
 
+int count_msg = 0;
+
 void setupWindow(){
 
   initscr(); // Obrigatorio e sempre a primeira operação de ncurses
@@ -49,7 +51,7 @@ void printOneWindow(WINDOW* window, bool lock){
   wrefresh(window); // necessário para atualizar a janela
 }
 
-void printWindow(sharedData* data){
+void printWindow(){
 
   printOneWindow(title, false);
   printOneWindow(scoreBoard, false);
@@ -59,13 +61,11 @@ void printWindow(sharedData* data){
   printOneWindow(map, true);
   printOneWindow(input, false);
 
-  printTitle(data->user, 0, 0);
-
   wmove(input, 2, 2);
 
 }
 
-int readKeyboard(){
+int readKeyboard(prompt* prmt){
 
   printOneWindow(input, false);
   mvwprintw(input, 1, 1, ">> ");
@@ -73,9 +73,8 @@ int readKeyboard(){
 
   int key = wgetch(map);
   char string[100];
-  prompt cmd;
-  cmd.command[0] = 0;
-  cmd.args[0] = 0;
+  prmt->command[0] = 0;
+  prmt->args[0] = 0;
 
   if (key == KEY_UP)
     return UP;
@@ -91,21 +90,22 @@ int readKeyboard(){
     noecho();
     wrefresh(input);
 
-    sscanf(string, "%s %[^\n]", cmd.command, cmd.args);
+    sscanf(string, "%s %[^\n]", prmt->command, prmt->args);
 
-    return checkCMD(&cmd);
+    return checkCMD(prmt);
   }
-
+  
+  setError("essa tecla nao e reconhecida pelo sistema");
   return CMD_ERROR;
 
 }
 
-void printTitle(userInfo user, int time, int score){
+void printTitle(char* message){
 
   printOneWindow(title, false);
-  mvwprintw(title, 1, 1, "\t%s[%d]\tTimer: %d\tScore: %d", user.name, user.pid, time, score);
+  mvwprintw(title, 1, 1, "\t\t%s", message);
   wrefresh(title);
-  wmove(input, 2, 2);
+  wmove(input, 1, 1);
 
 }
 
@@ -114,6 +114,18 @@ void printOutput(char* message, bool isError){
   printOneWindow(output, false);
   mvwprintw(output, 1, 1, "%s", message);
   wrefresh(output);
+  wmove(input, 1, 1);
+
+}
+
+void printMessage(char* message){
+
+  if(++count_msg == NUM_LINES+WN_SIZE_IN_OUT-2){
+    count_msg = 1;
+    printOneWindow(messages, false);
+  }
+  mvwprintw(messages, count_msg, 1, "%s", message);
+  wrefresh(messages);
   wmove(input, 1, 1);
 
 }

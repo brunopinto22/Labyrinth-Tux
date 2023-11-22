@@ -5,18 +5,12 @@
 #define PID getpid()
 int command = CLEAR;
 
-void closeSig(){
-  // fechar janela
-  closeWindow();
-    
-  command = EXIT;
-}
 
 void closeMotor(){
   // fechar janela
   closeWindow();
 
-  printf("\n\n%s> O Motor fechou%s\n",C_MOTOR, C_CLEAR);
+  printf("\n%s> O Motor fechou%s\n",C_MOTOR, C_CLEAR);
   command = KICKED;
 }
 
@@ -24,7 +18,7 @@ void closeKick(){
   // fechar janela
   closeWindow();
 
-  printf("\n\n%s> O Motor expulsou-o%s\n",C_FATAL_ERROR, C_CLEAR);
+  printf("\n%s> O Motor expulsou-o%s\n",C_FATAL_ERROR, C_CLEAR);
   command = KICKED;
 }
 
@@ -42,7 +36,7 @@ int main(int argc, char** argv){
 	prompt cmd;
 	char string[MAX_STRING];
   sharedData data;
-  int result;
+  int result, commandMotor = CLEAR;
 
 	// select
 	int res;
@@ -70,11 +64,11 @@ int main(int argc, char** argv){
   setupWindow();
 
   // handlers de sinais
-	signal(SIGINT, closeSig);
 	signal(SIGUSR1, closeMotor);
 	signal(SIGUSR2, closeKick);
 
-  printWindow(&data);
+  printWindow();
+  printTitle(getError());
 	do{
 
 		// limpar a vars
@@ -90,14 +84,18 @@ int main(int argc, char** argv){
 		res = select(fd + 1, &fds, NULL, NULL, &timeout);
 
 		if (res == -1 && command != EXIT && command != KICKED) {
+      // fechar janela
+      closeWindow();
+
 			printf("\n%sERRO - Occoreu um erro no select%s\n\n", C_FATAL_ERROR, C_CLEAR);
+
 			if(!closeUI(&fd, data, command == KICKED))
         printf("%s\nERRO - programa nao foi bem fechado\n\n%s", C_FATAL_ERROR, C_CLEAR);
       return 1;
 		}
 		else if (res > 0 && FD_ISSET(0, &fds) && command != EXIT && command != KICKED) { // ler os comandos da UI
 			
-      command = readKeyboard();
+      command = readKeyboard(&data.cmd);
 
       switch (command) {
       case CMD_ERROR:
@@ -121,7 +119,11 @@ int main(int argc, char** argv){
       break;
 
       case MSG:
-        printOutput("mandei msg", false);
+        result = sendTo(data, MOTOR_FIFO);
+        if(result == 1)
+          printf("%s\nERRO - nao foi possivel abrir %s\n%s", C_ERROR, MOTOR_FIFO, C_CLEAR);
+        else if(result == -1)
+          printf("%s\nERRO - falha no envio\n%s", C_ERROR, C_CLEAR);
       break;
 
       case HELP:
@@ -129,6 +131,8 @@ int main(int argc, char** argv){
       break;
 
       case EXIT:
+        // fechar janela
+        closeWindow();
       break;
       
       default:
@@ -137,10 +141,26 @@ int main(int argc, char** argv){
       break;
       }
 
+
 		}
 		else if (res > 0 && FD_ISSET(fd, &fds)  && command != EXIT && command != KICKED) { // ler o FIFO
 
 			if (read(fd, &data, sizeof(data)) > 0) {
+        
+        commandMotor = checkCMD(&data.cmd);
+
+        switch (commandMotor) {
+        case MSG:
+          if(data.result)
+            printMessage(data.error);
+          else
+            printOutput(data.error, true);
+          
+        break;
+        
+        default:
+          break;
+        }
 				
 			}
 

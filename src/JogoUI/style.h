@@ -15,13 +15,14 @@
 void setupWindow();
 // inicia ncurses
 
-void printWindow(sharedData* data);
+void printWindow();
 // imprime as janelas
 
-int readKeyboard(); 
+int readKeyboard(prompt* prmt); 
 // ler o teclado
+// caso seja um comando escrito guarda na var. data
 
-void printTitle(userInfo user, int time, int score);
+void printTitle(char* message);
 // imprime o titulo
 
 void printOutput(char* message, bool isError);
