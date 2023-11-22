@@ -23,6 +23,7 @@
 
 // funcional
 #define MAX_STRING 100
+#define MAX_ERROR MAX_STRING*3
 #define RD 0
 #define WR 1
 
@@ -58,6 +59,8 @@
 #define C_ERROR "\033[0;31m"
 #define C_FERROR "\033[3;31m"
 #define C_FATAL_ERROR "\033[4;31m"
+#define C_ONLINE "\033[0;32m"
+#define C_IDLE "\033[0;34m"
 #define C_MESSAGE "\033[0;33m"
 #define C_MOTOR "\033[0;35m"
 #define C_UI "\033[0;36m"
