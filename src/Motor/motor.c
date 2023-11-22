@@ -216,7 +216,7 @@ int main(int argc, char** argv){
         break;
 
         case MSG:
-          // guardar o destinatario e o nome
+          // guardar o destinatario e a mensagem
           char name[MAX_STRING], text[MAX_STRING];
           sscanf(data.cmd.args, "%s %[^\n]", name, text);
 
