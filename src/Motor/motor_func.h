@@ -30,10 +30,15 @@ bool closeMotor(int* fd);
 void printUsers(userInfo* users_list, int users_count);
 // imprime os utilizadores ligados ao motor
 
-void addUser(userInfo user_to_add, userInfo* users_list, int* users_count);
+pid_t userExists(char* user_to_find, userInfo* users_list, int users_count);
+// verifica se o utilizador existe no sistema
+// retorna:     o pid do utilizador
+//              0 - em caso de algum erro
+
+void addUser(userInfo user_to_add, userInfo* users_list, int* users_count, int* inGameUsers, bool gameStarted);
 // adiciona um novo utilizador ao motor
 
-int kickUser(char* user_name, userInfo* users_list, int* users_count);
+int kickUser(char* user_name, userInfo* users_list, int* users_count, int* inGameUsers);
 // expulsa um utilizador do motor
 // retorna:     o pid do utilizador expulso
 //              0 - em caso de algum erro

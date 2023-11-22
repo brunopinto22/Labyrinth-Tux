@@ -1,6 +1,6 @@
 #include "motor_func.h"
 
-char error[MAX_STRING] = "No Error yet lol";
+char error[MAX_ERROR] = "No Error yet lol";
 
 
 char* getError(){ return error; }
@@ -82,17 +82,45 @@ bool closeMotor(int* fd){
 }
 
 void printUsers(userInfo* users_list, int users_count){
+  char state[MAX_STRING];
+
   printf("\n%s> Lista de Users <%s\n", C_MESSAGE, C_CLEAR);
-  for(int i=0; i < users_count; i++)
-    printf("\t%s≻ %s%s [%d]\n", C_UI, users_list[i].name, C_CLEAR, users_list[i].pid);
+
+  for(int i=0; i < users_count; i++){
+    strcpy(state, C_IDLE);
+    if(users_list[i].inGame)
+      strcpy(state, C_ONLINE);
+
+    printf("\t%s● %s≻ %s%s [%d]\n", state, C_UI, users_list[i].name, C_CLEAR, users_list[i].pid);
+
+  }
+
 }
 
-void addUser(userInfo user_to_add, userInfo* users_list, int* users_count){
+pid_t userExists(char* user_to_find, userInfo* users_list, int users_count){
+
+  for(int i=0; i < users_count; i++)
+    if(strcmp(users_list[i].name, user_to_find) == 0)
+      return users_list[i].pid;
+  return 0;
+
+}
+
+void addUser(userInfo user_to_add, userInfo* users_list, int* users_count, int* inGameUsers, bool gameStarted){
+
+  // define o estado do jogador
+  user_to_add.inGame = !gameStarted;
+
+  if(!gameStarted)
+    *inGameUsers += 1;
+  
+  // adiciona o utilizador
   users_list[*users_count] = user_to_add;
   *users_count +=1;
+
 }
 
-int kickUser(char* user_name, userInfo* users_list, int* users_count){
+int kickUser(char* user_name, userInfo* users_list, int* users_count, int* inGameUsers){
   union sigval val;
   int pid = 0;
 
@@ -100,6 +128,8 @@ int kickUser(char* user_name, userInfo* users_list, int* users_count){
 		if(strcmp(user_name, users_list[i].name) == 0){
       pid = users_list[i].pid;
 			y++;
+      if(users_list[i].inGame)
+        *inGameUsers -= 1;
       sigqueue(users_list[i].pid, SIGUSR2, val);
 		}
 		strcpy(users_list[i].name, users_list[y].name);
