@@ -57,6 +57,8 @@ bool ini(int* fd, sharedData data){
     return false;
   }
 
+  // limpar ecra
+  system("clear");
   return true;
 
 }
