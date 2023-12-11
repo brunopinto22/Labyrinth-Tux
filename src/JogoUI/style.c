@@ -103,13 +103,18 @@ int readKeyboard(prompt* prmt){
 void printTitle(char* message){
 
   printOneWindow(title, false);
-  mvwprintw(title, 1, 1, "\t\t%s", message);
+  mvwprintw(title, 1, WN_SIZE_COLS/2-strlen(message)/2, "%s", message);
   wrefresh(title);
   wmove(input, 1, 1);
 
 }
 
 void printOutput(char* message, bool isError){
+
+  if(isError)
+    wattrset(output, COLOR_PAIR(COLOR_RED));
+  else
+    wattrset(output, COLOR_PAIR(COLOR_BLACK));
 
   printOneWindow(output, false);
   mvwprintw(output, 1, 1, "%s", message);
