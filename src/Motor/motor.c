@@ -108,7 +108,8 @@ int main(int argc, char** argv){
       break;
 
       case BEGIN:
-        printf(">> comecar jogo <<\n");
+        printf("\n%s> A comecar o Jogo%s\n", C_ONLINE, C_CLEAR);
+        isGameStarted = true;
         // begin();
       break;
 
@@ -257,7 +258,7 @@ int main(int argc, char** argv){
           if(result == 1)
             printf("%s\nERRO - nao foi possivel abrir %s\n%s", C_ERROR, fifoUi, C_CLEAR);
           else if(result == -1)
-            printf("%s\nERRO - falha no envio\n%s", C_ERROR, C_CLEAR);
+            printf("%s\nERRO - falha no envio%s\n", C_ERROR, C_CLEAR);
         }
 
         printf("\n>> ");

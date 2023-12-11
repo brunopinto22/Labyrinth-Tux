@@ -32,6 +32,8 @@ bool ini(int* fd, envVariables* gameSettings, gameLevel* levels){
 		return false;
 	}
 
+  // limpar ecra
+  system("clear");
   return true;
 }
 
@@ -84,7 +86,13 @@ bool closeMotor(int* fd){
 void printUsers(userInfo* users_list, int users_count){
   char state[MAX_STRING];
 
-  printf("\n%s> Lista de Users <%s\n", C_MESSAGE, C_CLEAR);
+  if(users_count == 0){
+    printf("\n%s> Nao existem Users online%s\n", C_ERROR, C_CLEAR);
+    return;
+  }
+
+
+  printf("\n%s> Lista de Users%s\n", C_MESSAGE, C_CLEAR);
 
   for(int i=0; i < users_count; i++){
     strcpy(state, C_IDLE);
