@@ -1,13 +1,17 @@
-all: motor jogoUI testBot
+# Motor
+MOTOR_OBJS=src/Motor/motor.c src/global.c src/Motor/motor_func.c
+
+# JogoUI
+JOGOUI_OBJS=src/JogoUI/jogoUI.c src/JogoUI/style.c src/global.c src/JogoUI/jogoUI_func.c
+
+
+all: motor jogoUI
 
 clean:
-	rm motor jogoUI testbot FIFO*
+	rm motor jogoUI FIFO*
 
-motor:
-	gcc -o motor src/Motor/motor.c src/global.c src/Motor/motor_func.c 
+motor: $(MOTOR_OBJS)
+	gcc -o motor $(MOTOR_OBJS)
 
-jogoUI:
-	gcc -o jogoUI src/JogoUI/jogoUI.c src/JogoUI/style.c src/global.c src/JogoUI/jogoUI_func.c -lncurses
-
-testBot:
-	gcc -o testbot src/test_bot.c
+jogoUI: $(JOGOUI_OBJS)
+	gcc -o jogoUI $(JOGOUI_OBJS) -lncurses
