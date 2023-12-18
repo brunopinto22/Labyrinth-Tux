@@ -108,9 +108,13 @@ int main(int argc, char** argv){
       break;
 
       case BEGIN:
-        printf("\n%s> A comecar o Jogo%s\n", C_ONLINE, C_CLEAR);
-        isGameStarted = true;
-        // begin();
+        if(begin(&isGameStarted, users, usersCount, levels)){
+          printf("\n%s> A comecar o Jogo%s\n", C_ONLINE, C_CLEAR);
+          //runGame(levels, &gameSettings, users, usersCount);
+        }
+        else
+          printf("\n%sO Jogo ja comecou%s\n", C_ERROR, C_CLEAR);
+
       break;
 
       case SETTINGS:
@@ -198,22 +202,11 @@ int main(int argc, char** argv){
 
         switch (commandUI) {
         case LOGIN: 
-          // verificar se tem espaco para mais um jogador         
-          if(usersCount >= MAX_USERS){
-            data.result = false;
-            sprintf(data.error, "%sNumero maximo de jogadores permitidos atingido%s", C_FATAL_ERROR, C_CLEAR);
 
-          } else {
-            printf("\n\n%s[%d] : Fez login como '%s'%s\n", C_ONLINE, data.user.pid, data.user.name, C_CLEAR);
-            addUser(data.user, users, &usersCount, &inGameUsers, isGameStarted);
-            
-            // verifica o estado do jogador e define a mensagem conforme
-            if(users[usersCount-1].inGame)
-              strcpy(data.error, "O jogo comecera em pouco tempo");
+            if(addUser(&data, users, &usersCount, &inGameUsers, isGameStarted))
+              printf("\n\n%s[%d] : Fez login como '%s'%s\n", C_ONLINE, data.user.pid, data.user.name, C_CLEAR);
             else
-              strcpy(data.error, "Espere que o jogo atual acabe");
-
-          }
+              data.result = false;
         break;
 
         case MSG:
@@ -242,7 +235,6 @@ int main(int argc, char** argv){
           // remove o utilizador do motor
           result = kickUser(data.user.name, users, &usersCount, &inGameUsers);
           printf("\n\n%s[%d] : Saiu %s\n", C_ERROR, result, C_CLEAR);
-
         break;
         
         default:
