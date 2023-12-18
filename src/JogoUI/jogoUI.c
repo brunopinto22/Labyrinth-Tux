@@ -53,6 +53,8 @@ int main(int argc, char** argv){
   user.pid = PID;
   strcpy(user.name, argv[1]);
   data.user = user;
+  user.coords.x = NUM_LINES;
+  user.coords.y = NUM_COLS/2;
 
   // iniciar a UI
 	if(!ini(&fd, data)){
@@ -107,18 +109,30 @@ int main(int argc, char** argv){
 
       case UP:
         printOutput("andei para cima", false);
+        user.coords.x -= 1;
+        printMap(data.level);
+        printUserOnMap(&user);
       break;
 
       case DOWN:
         printOutput("andei para baixo", false);
+        user.coords.x += 1;
+        printMap(data.level);
+        printUserOnMap(&user);
       break;
 
       case RIGHT:
         printOutput("andei para a direita", false);
+        user.coords.y += 1;
+        printMap(data.level);
+        printUserOnMap(&user);
       break;
 
       case LEFT:
         printOutput("andei para a esquerda", false);
+        user.coords.y -= 1;
+        printMap(data.level);
+        printUserOnMap(&user);
       break;
 
       case MSG:
@@ -140,7 +154,7 @@ int main(int argc, char** argv){
           sprintf(data.error, "ERRO - nao foi possivel abrir %s", MOTOR_FIFO);
         else if(result == -1)
           strcpy(data.error, "ERRO - falha no envio");
-        printOutput(data.error, !result != 0);
+        printOutput(data.error, result != 0);
         
       break;
 
@@ -174,6 +188,12 @@ int main(int argc, char** argv){
           else
             printOutput(data.error, true);
           
+        break;
+
+        case BEGIN:
+          printTitle("O Jogo Comecou");
+          printMap(data.level);
+          printUserOnMap(&user);
         break;
         
         default:
