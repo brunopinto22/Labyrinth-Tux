@@ -150,8 +150,8 @@ void printMap(gameLevel current_level){
 
 void printUserOnMap(userInfo* user){
 
-  mvwprintw(map, user->coords.x, user->coords.y, "%c", user->name[0]);
-  wmove(map, user->coords.x, user->coords.y);
+  mvwprintw(map, user->coords.x+1, user->coords.y+1, "%c", user->name[0]);
+  wmove(map, user->coords.x+1, user->coords.y+1);
   wrefresh(map);
 
 }
