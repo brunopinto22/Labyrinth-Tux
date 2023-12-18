@@ -106,7 +106,10 @@ int checkCMD(prompt* prmt){
     strcpy(error, "erro de formatacao: exit");
     return CMD_ERROR;
 
-  } else {
+  } else if(strcmp(prmt->command, "begin_motor") == 0){
+    return BEGIN;
+
+  }else {
     strcpy(error, "erro de formatacao: o comando nao existe");
     return CMD_ERROR; 
   }
