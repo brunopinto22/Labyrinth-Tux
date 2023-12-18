@@ -116,6 +116,60 @@ int checkCMD(prompt* prmt){
 
 }
 
+bool checkWon(userInfo* user, bool* won){
+  if(user->coords.x+1 == 0)
+    *won = true;
+
+  return *won;
+}
+
+bool movePlayer(int direction, userInfo* user, gameLevel level){
+
+  switch (direction) {
+
+  case UP:
+    if(level.map[user->coords.y][user->coords.x-1] == 'X')
+      return false;
+
+  user->coords.x -= 1;
+  return true;
+
+  case DOWN:
+    if(user->coords.x+1 == 0)
+      return false;
+
+    if(level.map[user->coords.y][user->coords.x+1] == 'X')
+      return false;
+
+  user->coords.x += 1;
+  return true;
+
+  case RIGHT:
+    if(user->coords.y+1 == NUM_COLS)
+      return false;
+
+    if(level.map[user->coords.y+1][user->coords.x] == 'X')
+      return false;
+
+  user->coords.y += 1;
+  return true;
+
+  case LEFT:
+    if(user->coords.y+1 == 0)
+      return false;
+
+    if(level.map[user->coords.y-1][user->coords.x] == 'X')
+      return false;
+
+  user->coords.y -= 1;
+  return true;
+  
+  default:
+  return false;
+  }
+
+}
+
 void printHelp(){
   printf("\n\t%s↑ ≻%s andar para cima", C_MESSAGE, C_CLEAR);
   printf("\n\t%s↓ ≻%s andar para baixo", C_MESSAGE, C_CLEAR);
