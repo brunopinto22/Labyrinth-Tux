@@ -31,6 +31,8 @@ int main(int argc, char** argv){
   // vars da UI
   int fd;
   userInfo user;
+  bool gameStarted = false;
+  bool won = false;
 
   // vars de comunicacao
 	prompt cmd;
@@ -53,8 +55,8 @@ int main(int argc, char** argv){
   user.pid = PID;
   strcpy(user.name, argv[1]);
   data.user = user;
-  user.coords.x = NUM_LINES;
-  user.coords.y = NUM_COLS/2;
+  user.coords.x = 0;
+  user.coords.y = 0;
 
   // iniciar a UI
 	if(!ini(&fd, data)){
@@ -87,7 +89,6 @@ int main(int argc, char** argv){
 		timeout.tv_sec = 1; // Timeout de 1 segundo
 
 		res = select(fd + 1, &fds, NULL, NULL, &timeout);
-
 		if (res == -1 && command != EXIT && command != KICKED) {
       // fechar janela
       closeWindow();
@@ -101,6 +102,7 @@ int main(int argc, char** argv){
 		else if (res > 0 && FD_ISSET(0, &fds) && command != EXIT && command != KICKED) { // ler os comandos da UI
 			
       command = readKeyboard(&data.cmd);
+      printOutput("", false);
 
       switch (command) {
       case CMD_ERROR:
@@ -108,29 +110,22 @@ int main(int argc, char** argv){
       break;
 
       case UP:
-        printOutput("andei para cima", false);
-        user.coords.x -= 1;
-        printMap(data.level);
-        printUserOnMap(&user);
-      break;
-
       case DOWN:
-        printOutput("andei para baixo", false);
-        user.coords.x += 1;
-        printMap(data.level);
-        printUserOnMap(&user);
-      break;
-
       case RIGHT:
-        printOutput("andei para a direita", false);
-        user.coords.y += 1;
-        printMap(data.level);
-        printUserOnMap(&user);
-      break;
-
       case LEFT:
-        printOutput("andei para a esquerda", false);
-        user.coords.y -= 1;
+
+        if(!gameStarted){
+          printOutput("Erro - nao se pode movimentar ainda", true);
+          break;
+        }
+        if(won){
+          printOutput("Erro - ja completou o nivel", true);
+          break;
+        }
+
+        if(!movePlayer(command, &user, data.level))
+          break;
+
         printMap(data.level);
         printUserOnMap(&user);
       break;
@@ -168,11 +163,18 @@ int main(int argc, char** argv){
       break;
       
       default:
+        // fechar janela
+        closeWindow();
+
         printf("\n%sERRO - nao devia de ter chegado aqui%s\n\n", C_FATAL_ERROR, C_CLEAR);
         command = EXIT;
       break;
       }
 
+      // verifica se ja acabou o nivel
+      if(checkWon(&user, &won)){
+        printTitle("Acabou o Nivel");
+      }
 
 		}
 		else if (res > 0 && FD_ISSET(fd, &fds)  && command != EXIT && command != KICKED) { // ler o FIFO
@@ -191,8 +193,12 @@ int main(int argc, char** argv){
         break;
 
         case BEGIN:
+          gameStarted = true;
           printTitle("O Jogo Comecou");
           printMap(data.level);
+
+          user.coords.x = NUM_LINES-1;
+          user.coords.y = NUM_COLS/2-1;
           printUserOnMap(&user);
         break;
         
