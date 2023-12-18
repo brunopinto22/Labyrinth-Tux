@@ -35,8 +35,10 @@ pid_t userExists(char* user_to_find, userInfo* users_list, int users_count);
 // retorna:     o pid do utilizador
 //              0 - em caso de algum erro
 
-void addUser(userInfo user_to_add, userInfo* users_list, int* users_count, int* inGameUsers, bool gameStarted);
+bool addUser(sharedData* data, userInfo* users_list, int* users_count, int* inGameUsers, bool gameStarted);
 // adiciona um novo utilizador ao motor
+// retorna:     true - adicione
+//              false - em caso de algum erro
 
 int kickUser(char* user_name, userInfo* users_list, int* users_count, int* inGameUsers);
 // expulsa um utilizador do motor
@@ -69,5 +71,14 @@ void printSettings(envVariables* gameSettings);
 
 void printHelp();
 // imprime a lista de comandos
+
+bool begin(bool* gameStarted, userInfo* users, int users_count, gameLevel levels[MAX_LEVELS]);
+// inicia o jogo
+// retorna:     true - inicie
+//              false - caso de algum erro
+
+void runGame(gameLevel levels[MAX_LEVELS], envVariables* gameSettings, userInfo* users, int users_count);
+// roda o Jogo
+
 
 #endif //TP_MOTOR_FUNC_H

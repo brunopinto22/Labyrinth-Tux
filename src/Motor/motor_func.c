@@ -114,17 +114,37 @@ pid_t userExists(char* user_to_find, userInfo* users_list, int users_count){
 
 }
 
-void addUser(userInfo user_to_add, userInfo* users_list, int* users_count, int* inGameUsers, bool gameStarted){
+bool addUser(sharedData* data, userInfo* users_list, int* users_count, int* inGameUsers, bool gameStarted){
+
+  // verificar se tem espaco para mais um jogador         
+  if(*users_count >= MAX_USERS){
+    sprintf(data->error, "%sNumero maximo de jogadores permitidos atingido%s", C_FATAL_ERROR, C_CLEAR);
+    return false;
+  }
+
+  // verifica se o username ja existe no sistema
+  if(userExists(data->user.name, users_list, *users_count) != 0){
+    sprintf(data->error, "%sJa existe um Jogador com o nome \'%s\'%s", C_FATAL_ERROR, data->user.name, C_CLEAR);
+    return false;
+  }
 
   // define o estado do jogador
-  user_to_add.inGame = !gameStarted;
+  data->user.inGame = !gameStarted;
 
   if(!gameStarted)
     *inGameUsers += 1;
   
   // adiciona o utilizador
-  users_list[*users_count] = user_to_add;
+  users_list[*users_count] = data->user;
   *users_count +=1;
+
+  // verifica o estado do jogador e define a mensagem conforme
+  if(!gameStarted)
+    strcpy(data->error, "O jogo comecera em pouco tempo");
+  else
+    strcpy(data->error, "Espere que o jogo atual acabe");
+
+  return true;
 
 }
 
@@ -385,4 +405,38 @@ void printHelp(){
   printf("\n\t%ssettings ≻%s mostra as definicoes do jogo", C_MESSAGE, C_CLEAR);
   printf("\n\t%smap ≻%s mostra o mapa com as suas respetivas definicoes", C_MESSAGE, C_CLEAR);
   printf("\n\t%send ≻%s fecha o programa\n", C_MESSAGE, C_CLEAR);
+}
+
+
+bool begin(bool* gameStarted, userInfo* users, int users_count, gameLevel levels[MAX_LEVELS]){
+  if(*gameStarted)
+    return false;
+
+  // avisa os UIs todos
+  sharedData data;
+  strcpy(data.cmd.command, "begin_motor");
+  data.level.level = levels[0].level;
+  data.level.level_time = levels[0].level_time;
+
+  for (int lin=0; lin < NUM_LINES; lin++)
+    for(int col=0; col < NUM_COLS; col++)
+      data.level.map[col][lin] = levels[0].map[col][lin];
+
+  char fifoUi[MAX_STRING];
+  for(int i=0; i < users_count; i++){
+    sprintf(fifoUi, UI_FIFO, users[i].pid);
+		int result = sendTo(data, fifoUi);
+    if(result == 1)
+      printf("%s\nERRO - nao foi possivel abrir %s\n%s", C_ERROR, fifoUi, C_CLEAR);
+    else if(result == -1)
+      printf("%s\nERRO - falha no envio%s\n", C_ERROR, C_CLEAR);
+  }
+
+  *gameStarted = true;
+  return true;
+
+}
+
+void runGame(gameLevel levels[MAX_LEVELS], envVariables* gameSettings, userInfo* users, int users_count){
+
 }
