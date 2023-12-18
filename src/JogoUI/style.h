@@ -5,8 +5,10 @@
 #include "jogoUI_func.h"
 #include "../global.h"
 
+#define MAP_COLS NUM_COLS+2
+#define MAP_LINES NUM_LINES+1
 #define WN_SIZE_SIDES 30
-#define WN_SIZE_COLS (NUM_COLS+WN_SIZE_SIDES*2)
+#define WN_SIZE_COLS (MAP_COLS+WN_SIZE_SIDES*2)
 #define WN_SIZE_IN_OUT 7
 
 #define ERROR_COLOR 1
@@ -33,6 +35,12 @@ void printMessage(char* message);
 
 void printScore(char* score);
 // imprime a pontuacao
+
+void printMap(gameLevel current_level);
+// imprime o mapa
+
+void printUserOnMap(userInfo* user);
+// imprime o utilizador em (x,y)
 
 void clearWindow();
 // limpa as janelas
