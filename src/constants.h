@@ -32,6 +32,7 @@
 #define HELP 10
 #define WON 11
 #define MOVE 12
+#define TIME 13
 #define CLEAR 22
 // motor:
 #define USERS 1
