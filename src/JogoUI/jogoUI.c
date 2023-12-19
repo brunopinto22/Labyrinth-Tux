@@ -1,9 +1,20 @@
+#include <pthread.h>
 #include "jogoUI_func.h"
 #include "style.h"
 
 // vars globais
 #define PID getpid()
 int command = CLEAR;
+
+// temporizador
+int level_timer = 0;
+void *levelTimer(void *arg) {
+  while (1) {
+    sleep(1);
+    level_timer++;
+  }
+  return NULL;
+}
 
 
 void closeMotor(){
@@ -27,6 +38,9 @@ int main(int argc, char** argv){
 
   setbuf(stdout, NULL);
 	setbuf(stdin, NULL);
+
+  // threads
+  pthread_t th_LevelTimer;
 
   // vars da UI
   int fd;
@@ -128,6 +142,25 @@ int main(int argc, char** argv){
 
         printMap(data.level);
         printUserOnMap(&user);
+
+        // verifica se ja acabou o nivel
+        if(checkWon(&user, &won)){
+          sprintf(data.error, "Acabou o Nivel em %ds", level_timer);
+          printTitle(data.error);
+
+          // avisar o Motor
+          strcpy(data.cmd.command, "won");
+          sprintf(data.cmd.args, "%d", level_timer);
+
+          result = sendTo(data, MOTOR_FIFO);
+          if(result == 1)
+            sprintf(data.error, "ERRO - nao foi possivel abrir %s", MOTOR_FIFO);
+          else if(result == -1)
+            strcpy(data.error, "ERRO - falha no envio");
+          printOutput(data.error, result != 0);
+
+        }
+
       break;
 
       case MSG:
@@ -171,11 +204,6 @@ int main(int argc, char** argv){
       break;
       }
 
-      // verifica se ja acabou o nivel
-      if(checkWon(&user, &won)){
-        printTitle("Acabou o Nivel");
-      }
-
 		}
 		else if (res > 0 && FD_ISSET(fd, &fds)  && command != EXIT && command != KICKED) { // ler o FIFO
 
@@ -193,9 +221,23 @@ int main(int argc, char** argv){
         break;
 
         case BEGIN:
+          level_timer = 0;
           gameStarted = true;
           printTitle("O Jogo Comecou");
           printMap(data.level);
+
+          // criar thread para o temporizador
+          if (pthread_create(&th_LevelTimer, NULL, levelTimer, NULL) != 0) {
+            // fechar janela
+            closeWindow();
+
+            if(!closeUI(&fd, data, false)){
+              printf("%s\nERRO - programa nao foi bem fechado\n\n%s", C_FATAL_ERROR, C_CLEAR);
+              return 1;
+            }
+            printf("%s\nERRO - nao foi possivel criar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
+            return 1;
+          }
 
           user.coords.x = NUM_LINES-1;
           user.coords.y = NUM_COLS/2-1;
@@ -213,7 +255,18 @@ int main(int argc, char** argv){
 	} while(command != EXIT && command != KICKED);
 
   if(!closeUI(&fd, data, command == KICKED)){
+    // terminar a thread
+    if (pthread_cancel(th_LevelTimer) != 0) {
+      printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
+      return 1;
+    }
     printf("%s\nERRO - programa nao foi bem fechado\n\n%s", C_FATAL_ERROR, C_CLEAR);
+    return 1;
+  }
+
+  // terminar a thread
+  if (pthread_cancel(th_LevelTimer) != 0) {
+    printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
     return 1;
   }
 
