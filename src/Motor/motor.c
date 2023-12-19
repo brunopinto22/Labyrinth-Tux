@@ -1,8 +1,36 @@
+#include <pthread.h>
 #include "motor_func.h"
 
 // vars globais
 #define PID getpid()
 int command = CLEAR;
+
+// temporizador
+int system_timer = 0;
+void *systemTimer(void *arg) {
+  while (1) {
+    sleep(1);
+    system_timer++;
+  }
+  return NULL;
+}
+
+// vars de jogo
+bool isGameStarted = false;
+int currentLevel = 0;
+envVariables gameSettings;
+int level_timer;
+void *levelTimer(void *arg) {
+  level_timer = gameSettings.timer - gameSettings.timer_dc*currentLevel;
+  while (1) {
+    sleep(1);
+    level_timer--;
+    if(level_timer <= 0)
+      break;
+  }
+  return NULL;
+}
+
 
 void closeSig(){
   command = END;
@@ -13,6 +41,10 @@ int main(int argc, char** argv){
 
   setbuf(stdout, NULL);
 	setbuf(stdin, NULL);
+
+  // threads
+  pthread_t th_SystemTimer;
+  pthread_t th_LevelTimer;
 
   // vars do motor
   int fd;
@@ -27,9 +59,7 @@ int main(int argc, char** argv){
   char fifoUi[MAX_STRING];
 
   // vars de jogo
-  bool isGameStarted = false;
   int inGameUsers = 0;
-  envVariables gameSettings;
   gameLevel levels[MAX_LEVELS];
 
 	// select
@@ -42,6 +72,18 @@ int main(int argc, char** argv){
 	  printf("\n%s\n", getError());
 	  return 1;
 	}
+
+
+  // criar thread para o temporizador
+  if (pthread_create(&th_SystemTimer, NULL, systemTimer, NULL) != 0) {
+    if(!closeMotor(&fd)){
+      printf("%s\nERRO - programa nao foi bem fechado\n%s", C_FATAL_ERROR, C_CLEAR);
+      return 1;
+    }
+    printf("%s\nERRO - nao foi possivel criar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
+    return 1;
+  }
+
 
   // handlers de sinais
 	signal(SIGINT, closeSig);
@@ -65,6 +107,8 @@ int main(int argc, char** argv){
 			printf("\n%sERRO - Occoreu um erro no select%s\n", C_FATAL_ERROR, C_CLEAR);
 			if(!closeMotor(&fd))
         printf("%s\nERRO - programa nao foi bem fechado\n%s", C_FATAL_ERROR, C_CLEAR);
+      if (pthread_cancel(th_SystemTimer) != 0) 
+        printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
       return 1;
 		}
 		else if (res > 0 && FD_ISSET(0, &fds) && command != END) { // ler os comandos do ADMIN
@@ -131,50 +175,8 @@ int main(int argc, char** argv){
         printHelp();
       break;
 
-      case TESTBOT:
-        int x,y,t;
-        char buffer[MAX_STRING];
-        ssize_t bytes;
-
-        int pipefd[2];
-        if(pipe(pipefd) == -1){
-          printf("\n%sERRO - a criacao do pipe falhou%s\n", C_FATAL_ERROR, C_CLEAR);
-          command = END;
-        }
-
-        pid_t p = fork();
-        if(p == -1){
-          printf("\n%sERRO - o fork falhou%s\n", C_FATAL_ERROR, C_CLEAR);
-          command = END;
-        }
-
-        if(p == 0){ // processo filho
-          close(pipefd[0]);
-          dup2(pipefd[1], STDOUT_FILENO);
-          close(pipefd[1]);
-          
-          // executar o bot de teste
-          execl("./testbot", "testbot", NULL);
-
-          // caso nao execute
-          printf("\n%sERRO - a execucao do testbot falhou%s\n", C_FATAL_ERROR, C_CLEAR);
-          command = END;
-
-        } else { // processo pai
-
-          close(pipefd[1]);
-
-          // esperar para receber valores
-          while((bytes = read(pipefd[0], buffer, sizeof(buffer))) > 0){}
-
-          close(pipefd[0]);
-          wait(NULL);
-        }
-        
-        // imprimir valor recebido
-        sscanf(buffer, "%d %d %d", &x, &y, &t);
-        printf("\nRecebi x=%d y=%d durancao=%d\n", x, y, t);
-
+      case TIME:
+        printf("\n%s> Tempo do Sistema : %ds%s\n", C_ONLINE, system_timer, C_CLEAR);
       break;
 
       case END:
@@ -264,12 +266,17 @@ int main(int argc, char** argv){
 
 	} while(command != END);
 
+  closeUIs(users, usersCount);
+
   if(!closeMotor(&fd)){
+    if (pthread_cancel(th_SystemTimer) != 0) 
+      printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
     printf("%s\nERRO - programa nao foi bem fechado\n%s", C_FATAL_ERROR, C_CLEAR);
     return 1;
   }
 
-  closeUIs(users, usersCount);
+  if (pthread_cancel(th_SystemTimer) != 0) 
+    printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
 
   printf("\n%s⋉  Bye Bye ⋊%s\n", C_MOTOR, C_CLEAR);
 	return 0;
