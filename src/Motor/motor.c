@@ -231,6 +231,10 @@ int main(int argc, char** argv){
           
         break;
 
+        case WON:
+          printf("\n\n%s[%d] : Acabou o Nivel em %ss %s\n", C_MESSAGE, data.user.pid, data.cmd.args, C_CLEAR);
+        break;
+
         case EXIT:
           // remove o utilizador do motor
           result = kickUser(data.user.name, users, &usersCount, &inGameUsers);

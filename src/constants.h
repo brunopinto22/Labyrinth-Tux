@@ -30,6 +30,8 @@
 // comandos
 #define CMD_ERROR -1
 #define HELP 10
+#define WON 11
+#define MOVE 12
 #define CLEAR 22
 // motor:
 #define USERS 1

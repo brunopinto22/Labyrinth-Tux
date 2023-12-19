@@ -335,28 +335,10 @@ int checkCMD_UI(prompt* prmt){
   if(strcmp(prmt->command, "login") == 0){
     return LOGIN;
 
-  } else if(strcmp(prmt->command, "up") == 0){
+  } else if(strcmp(prmt->command, "move") == 0){
 
     if(strcmp(prmt->args, "") == 0)
-      return UP;
-    return CMD_ERROR;
-
-  } else if(strcmp(prmt->command, "down") == 0){
-
-    if(strcmp(prmt->args, "") == 0)
-      return DOWN;
-    return CMD_ERROR;
-
-  } else if(strcmp(prmt->command, "right") == 0){
-
-    if(strcmp(prmt->args, "") == 0)
-      return RIGHT;
-    return CMD_ERROR;
-
-  } else if(strcmp(prmt->command, "left") == 0){
-
-    if(strcmp(prmt->args, "") == 0)
-      return LEFT;
+      return MOVE;
     return CMD_ERROR;
 
   } else if(strcmp(prmt->command, "msg") == 0){
@@ -366,6 +348,9 @@ int checkCMD_UI(prompt* prmt){
     if(sscanf(prmt->args, "%s %[^\n]", pl, msg) > 0);
       return MSG;
     return CMD_ERROR;
+
+  } else if(strcmp(prmt->command, "won") == 0){
+      return WON;
 
   } else if(strcmp(prmt->command, "exit") == 0){
       return EXIT;
