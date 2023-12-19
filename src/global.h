@@ -31,12 +31,6 @@ struct coordinates{
   int y;
 };
 
-typedef struct score score;
-struct score{
-  int time;
-  char player[MAX_STRING];
-};
-
 typedef struct userInfo userInfo;
 struct userInfo{
 	pid_t pid;
@@ -63,9 +57,10 @@ struct sharedData{
   // informacao do nivel
   gameLevel level;
 
-  // pontuacoes globais
-  bool newScore;
-  score latest_score;
+  // informacao dos jogadores
+  userInfo user_list[MAX_USERS];
+  int users_count;
+  
 };
 
 typedef struct envVariables envVariables;

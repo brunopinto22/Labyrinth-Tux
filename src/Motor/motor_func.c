@@ -173,6 +173,27 @@ int kickUser(char* user_name, userInfo* users_list, int* users_count, int* inGam
   return pid;
 }
 
+void updateUsersMove(sharedData* data, userInfo* users_list, int users_count){
+
+  char fifoUi[MAX_STRING];
+  int result;
+
+  for(int i=0; i < users_count; i++){
+    if(users_list[i].pid != data->user.pid && users_list[i].inGame){
+      printf("\n %d=%d \n",data->user.pid, users_list[i].pid);
+
+      sprintf(fifoUi, UI_FIFO, users_list[i].pid);
+      result = sendTo(*data, fifoUi);
+      if(result == 1)
+        printf("%s\nERRO - nao foi possivel abrir %s\n%s", C_ERROR, fifoUi, C_CLEAR);
+      else if(result == -1)
+        printf("%s\nERRO - falha no envio%s\n", C_ERROR, C_CLEAR);
+
+    }
+  }
+
+}
+
 void closeUIs(userInfo* users, int users_count){
 
   union sigval val;

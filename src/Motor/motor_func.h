@@ -45,6 +45,9 @@ int kickUser(char* user_name, userInfo* users_list, int* users_count, int* inGam
 // retorna:     o pid do utilizador expulso
 //              0 - em caso de algum erro
 
+void updateUsersMove(sharedData* data, userInfo* users_list, int users_count);
+// atualiza a posicao do utilizador e avisa os outros do seu movimento
+
 void closeUIs(userInfo* users, int users_count);
 // fecha todas as UIs ligadas ao motor
 

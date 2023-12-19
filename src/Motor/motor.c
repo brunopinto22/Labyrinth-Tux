@@ -19,6 +19,7 @@ void *systemTimer(void *arg) {
 bool isGameStarted = false;
 int currentLevel = 0;
 envVariables gameSettings;
+
 int level_timer;
 void *levelTimer(void *arg) {
   level_timer = gameSettings.timer - gameSettings.timer_dc*currentLevel;
@@ -204,11 +205,14 @@ int main(int argc, char** argv){
 
         switch (commandUI) {
         case LOGIN: 
+          if(addUser(&data, users, &usersCount, &inGameUsers, isGameStarted))
+            printf("\n\n%s[%d] : Fez login como '%s'%s\n", C_ONLINE, data.user.pid, data.user.name, C_CLEAR);
+          else
+            data.result = false;
+        break;
 
-            if(addUser(&data, users, &usersCount, &inGameUsers, isGameStarted))
-              printf("\n\n%s[%d] : Fez login como '%s'%s\n", C_ONLINE, data.user.pid, data.user.name, C_CLEAR);
-            else
-              data.result = false;
+        case MOVE:
+          updateUsersMove(&data, users, usersCount);
         break;
 
         case MSG:
@@ -251,7 +255,7 @@ int main(int argc, char** argv){
         }
         
         // enviar resultado
-        if(commandUI != CMD_ERROR && commandUI != EXIT){
+        if(commandUI != CMD_ERROR && commandUI != EXIT && commandUI != MOVE){
           result = sendTo(data, fifoUi);
           if(result == 1)
             printf("%s\nERRO - nao foi possivel abrir %s\n%s", C_ERROR, fifoUi, C_CLEAR);

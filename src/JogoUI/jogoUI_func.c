@@ -109,7 +109,10 @@ int checkCMD(prompt* prmt){
   } else if(strcmp(prmt->command, "begin_motor") == 0){
     return BEGIN;
 
-  }else {
+  } else if(strcmp(prmt->command, "move") == 0){
+    return MOVE;
+
+  } else {
     strcpy(error, "erro de formatacao: o comando nao existe");
     return CMD_ERROR; 
   }
