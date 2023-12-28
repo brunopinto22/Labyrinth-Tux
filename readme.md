@@ -1,4 +1,4 @@
-<img align="right" src="https://cdn-icons-png.flaticon.com/512/6124/6124995.png" width="200">
+<img align="right" src="icon.ico" width="200">
 
 # Labyrinth-Tux
 Labyrinth Game for Linux, with a server/client architecture.
