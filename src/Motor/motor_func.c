@@ -46,7 +46,7 @@ bool loadMaps(gameLevel levels[MAX_LEVELS], envVariables* gameSettings){
   for(int i=0; i<MAX_LEVELS; i++){
 
     // definir o nome do ficheiro a abrir
-    sprintf(file_name, LEVEL_FILE, i);
+    sprintf(file_name, LEVEL_FILE, i+1);
     // abrir o ficheiro
     file = fopen(file_name, "r");
     if(file == NULL){ // caso nao exista usa o nivel default
