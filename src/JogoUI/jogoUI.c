@@ -7,12 +7,27 @@
 int command = CLEAR;
 
 // temporizador
+int current_level = 0;
 int level_timer = 0;
+int best_time = 0;
+bool gameStarted = false;
+bool won = false;
 void *levelTimer(void *arg) {
+  char text[MAX_STRING];
   while (1) {
+
     sleep(1);
-    level_timer++;
+    level_timer--;
+
+    if(!won)
+      best_time++;
+
+    sprintf(text, "Nivel: %d | Tempo: %d | Tempo restante: %d", current_level, best_time, level_timer);
+    printTitle(text);
+
   }
+  level_timer = 0;
+  best_time = 0;
   return NULL;
 }
 
@@ -45,8 +60,6 @@ int main(int argc, char** argv){
   // vars da UI
   int fd;
   userInfo user;
-  bool gameStarted = false;
-  bool won = false;
 
   // vars de comunicacao
 	prompt cmd;
@@ -155,12 +168,12 @@ int main(int argc, char** argv){
         
         // verifica se ja acabou o nivel
         if(checkWon(&user, &won)){
-          sprintf(data.error, "Acabou o Nivel em %ds", level_timer);
+          sprintf(data.error, "Acabou o Nivel em %ds", best_time);
           printTitle(data.error);
 
           // avisar o Motor
           strcpy(data.cmd.command, "won");
-          sprintf(data.cmd.args, "%d", level_timer);
+          sprintf(data.cmd.args, "%d", best_time);
 
           result = sendTo(data, MOTOR_FIFO);
           if(result == 1)
@@ -231,14 +244,24 @@ int main(int argc, char** argv){
         break;
 
         case BEGIN:
-          level_timer = 0;
-          gameStarted = true;
+          best_time = 0;
+          level_timer = data.level.level_time;
+          current_level = data.level.level;
+          
           won = false;
-          printTitle("O Jogo Comecou");
           printMap(data.level);
+          
+          user.coords.x = NUM_LINES-1;
+          user.coords.y = NUM_COLS/2-1;
+          printUserOnMap(&user);
 
+          if(gameStarted)
+            break;
+
+
+          gameStarted = true;
           // criar thread para o temporizador
-          if (pthread_create(&th_LevelTimer, NULL, levelTimer, NULL) != 0) {
+          if(pthread_create(&th_LevelTimer, NULL, levelTimer, NULL) != 0) {
             // fechar janela
             closeWindow();
 
@@ -250,14 +273,30 @@ int main(int argc, char** argv){
             return 1;
           }
 
-          user.coords.x = NUM_LINES-1;
-          user.coords.y = NUM_COLS/2-1;
-          printUserOnMap(&user);
+          
         break;
 
         case MOVE:
           sprintf(data.error, "%d - moveu se para %d %d", data.user.pid, data.user.coords.x, data.user.coords.y);
           printOutput(data.error, false);
+        break;
+
+        case ENDGAME:
+          // terminar a thread
+          if (pthread_cancel(th_LevelTimer) != 0) {
+            printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
+            return 1;
+          }
+          
+          // limpa o mapa
+          clearMap();
+
+          printTitle(data.error);
+
+          level_timer = 0;
+          best_time = 0;
+          gameStarted = false;
+
         break;
         
         default:

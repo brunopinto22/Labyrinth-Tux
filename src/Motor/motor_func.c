@@ -439,6 +439,26 @@ bool begin(bool* gameStarted, userInfo* users, int users_count, gameLevel levels
 
 }
 
-void runGame(gameLevel levels[MAX_LEVELS], envVariables* gameSettings, userInfo* users, int users_count){
+void endGame(userInfo* users, int users_count){
+
+  // avisa os UIs todos
+  sharedData data;
+  strcpy(data.cmd.command, "end_game");
+  strcpy(data.error, "O jogo comecera em pouco tempo");
+
+  char fifoUi[MAX_STRING];
+  for(int i=0; i < users_count; i++){
+    if(users[i].inGame){
+
+      sprintf(fifoUi, UI_FIFO, users[i].pid);
+      int result = sendTo(data, fifoUi);
+      if(result == 1)
+        printf("%s\nERRO - nao foi possivel abrir %s\n%s", C_ERROR, fifoUi, C_CLEAR);
+      else if(result == -1)
+        printf("%s\nERRO - falha no envio%s\n", C_ERROR, C_CLEAR);
+
+    }
+    
+  }
 
 }

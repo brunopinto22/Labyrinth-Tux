@@ -139,6 +139,8 @@ void printMessage(char* message){
 }
 
 void printMap(gameLevel current_level){
+
+  printOneWindow(map, false, false);
   
   for (int lin=0; lin < MAP_LINES-1; lin++)
     for(int col=0; col < NUM_COLS; col++)
@@ -146,6 +148,11 @@ void printMap(gameLevel current_level){
 
   wrefresh(map);
   wmove(input, 2, 1);
+}
+
+void clearMap(){
+  printOneWindow(map, false, false);
+  wrefresh(map);
 }
 
 void printUserOnMap(userInfo* user){

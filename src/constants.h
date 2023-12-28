@@ -29,10 +29,10 @@
 
 // comandos
 #define CMD_ERROR -1
-#define HELP 10
-#define WON 11
-#define MOVE 12
-#define TIME 13
+#define HELP 11
+#define WON 12
+#define MOVE 13
+#define TIME 14
 #define CLEAR 22
 // motor:
 #define USERS 1
@@ -55,6 +55,7 @@
 #define RIGHT 7
 #define LEFT 8
 #define KICKED 9
+#define ENDGAME 10
 #define EXIT 0
 
 // cores

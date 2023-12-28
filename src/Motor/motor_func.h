@@ -80,8 +80,8 @@ bool begin(bool* gameStarted, userInfo* users, int users_count, gameLevel levels
 // retorna:     true - inicie
 //              false - caso de algum erro
 
-void runGame(gameLevel levels[MAX_LEVELS], envVariables* gameSettings, userInfo* users, int users_count);
-// roda o Jogo
+void endGame(userInfo* users, int users_count);
+// termina o jogo
 
 
 #endif //TP_MOTOR_FUNC_H

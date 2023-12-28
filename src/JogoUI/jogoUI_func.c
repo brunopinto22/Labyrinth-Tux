@@ -109,6 +109,9 @@ int checkCMD(prompt* prmt){
   } else if(strcmp(prmt->command, "begin_motor") == 0){
     return BEGIN;
 
+  } else if(strcmp(prmt->command, "end_game") == 0){
+    return ENDGAME;
+
   } else if(strcmp(prmt->command, "move") == 0){
     return MOVE;
 

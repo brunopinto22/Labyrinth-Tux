@@ -39,6 +39,9 @@ void printScore(char* score);
 void printMap(gameLevel current_level);
 // imprime o mapa
 
+void clearMap();
+// limpa o mapa
+
 void printUserOnMap(userInfo* user);
 // imprime o utilizador em (x,y)
 

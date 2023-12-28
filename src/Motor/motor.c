@@ -5,15 +5,6 @@
 #define PID getpid()
 int command = CLEAR;
 
-// temporizador
-int system_timer = 0;
-void *systemTimer(void *arg) {
-  while (1) {
-    sleep(1);
-    system_timer++;
-  }
-  return NULL;
-}
 
 // vars de jogo
 bool isGameStarted = false;
@@ -38,9 +29,11 @@ void *levelTimer(void *arg) {
     }
     currentLevel++;
     isGameStarted = false;
-    begin(&isGameStarted, users, usersCount, levels, currentLevel);
+    
+    if(currentLevel < MAX_LEVELS)
+      begin(&isGameStarted, users, usersCount, levels, currentLevel);
 
-    printf("\n\n%s> Acabou o Nivel %d %s\n\n>> ", C_MESSAGE, currentLevel, C_CLEAR);
+    printf("\n\n%s> Acabou o tempo do Nivel %d %s\n\n>> ", C_MESSAGE, currentLevel, C_CLEAR);
 
   }
   printf("\n\n%s> Acabou o Jogo %s\n\n>> ", C_ONLINE, C_CLEAR);
@@ -48,6 +41,35 @@ void *levelTimer(void *arg) {
   level_timer = 0;
   currentLevel = 0;
   isGameStarted = false;
+
+  // termina o jogo
+  endGame(users, usersCount);
+
+  return NULL;
+}
+
+
+// temporizador
+int system_timer = 0;
+int startGame = 0;
+void *systemTimer(void *arg) {
+  while (1) {
+
+    sleep(1);
+    system_timer++;
+
+    if(startGame >= gameSettings.reg_time && usersCount >= gameSettings.min_players)
+      begin(&isGameStarted, users, usersCount, levels, currentLevel);
+
+    else if(!isGameStarted){
+      if(startGame < gameSettings.reg_time)
+        startGame++;
+      else
+        startGame = 0;
+    } else
+      startGame = 0;
+
+  }
   return NULL;
 }
 
@@ -204,6 +226,7 @@ int main(int argc, char** argv){
 
       case TIME:
         printf("\n%s> Tempo do Sistema : %s%ds", C_IDLE, C_CLEAR, system_timer);
+        printf("\n%s> Tempo do para registo restante : %s%ds", C_IDLE, C_CLEAR, gameSettings.reg_time-startGame);
         printf("\n%s> Tempo do Nivel Atual : %s%ds\n", C_IDLE, C_CLEAR, level_timer);
       break;
 
