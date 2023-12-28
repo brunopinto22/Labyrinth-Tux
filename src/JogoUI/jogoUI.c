@@ -68,8 +68,6 @@ int main(int argc, char** argv){
   // guardar informacao da UI
   user.pid = PID;
   strcpy(user.name, argv[1]);
-  user.coords.x = NUM_LINES-1;
-  user.coords.y = NUM_COLS/2-1;
   data.user = user;
 
   // iniciar a UI
@@ -109,7 +107,7 @@ int main(int argc, char** argv){
 
 			printf("\n%sERRO - Occoreu um erro no select%s\n\n", C_FATAL_ERROR, C_CLEAR);
 
-			if(!closeUI(&fd, data, command == KICKED))
+			if(!closeUI(&fd, data, false))
         printf("%s\nERRO - programa nao foi bem fechado\n\n%s", C_FATAL_ERROR, C_CLEAR);
       return 1;
 		}
@@ -155,8 +153,6 @@ int main(int argc, char** argv){
           printOutput(data.error, result != 0);
         }
         
-
-
         // verifica se ja acabou o nivel
         if(checkWon(&user, &won)){
           sprintf(data.error, "Acabou o Nivel em %ds", level_timer);
@@ -237,6 +233,7 @@ int main(int argc, char** argv){
         case BEGIN:
           level_timer = 0;
           gameStarted = true;
+          won = false;
           printTitle("O Jogo Comecou");
           printMap(data.level);
 
@@ -253,6 +250,8 @@ int main(int argc, char** argv){
             return 1;
           }
 
+          user.coords.x = NUM_LINES-1;
+          user.coords.y = NUM_COLS/2-1;
           printUserOnMap(&user);
         break;
 

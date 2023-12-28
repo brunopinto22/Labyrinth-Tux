@@ -99,7 +99,7 @@ void printUsers(userInfo* users_list, int users_count){
     if(users_list[i].inGame)
       strcpy(state, C_ONLINE);
 
-    printf("\t%s● %s≻ %s%s [%d]\n", state, C_UI, users_list[i].name, C_CLEAR, users_list[i].pid);
+    printf("\t%s● %s≻ %s%s [%d] : x=%d y=%d\n", state, C_UI, users_list[i].name, C_CLEAR, users_list[i].pid, users_list[i].coords.x, users_list[i].coords.y);
 
   }
 
@@ -136,6 +136,8 @@ bool addUser(sharedData* data, userInfo* users_list, int* users_count, int* inGa
   
   // adiciona o utilizador
   users_list[*users_count] = data->user;
+  users_list[*users_count].coords.x = NUM_LINES-1;
+  users_list[*users_count].coords.y = NUM_COLS/2-1;
   *users_count +=1;
 
   // verifica o estado do jogador e define a mensagem conforme
@@ -180,8 +182,6 @@ void updateUsersMove(sharedData* data, userInfo* users_list, int users_count){
 
   for(int i=0; i < users_count; i++){
     if(users_list[i].pid != data->user.pid && users_list[i].inGame){
-      printf("\n %d=%d \n",data->user.pid, users_list[i].pid);
-
       sprintf(fifoUi, UI_FIFO, users_list[i].pid);
       result = sendTo(*data, fifoUi);
       if(result == 1)
@@ -410,19 +410,19 @@ void printHelp(){
 }
 
 
-bool begin(bool* gameStarted, userInfo* users, int users_count, gameLevel levels[MAX_LEVELS]){
+bool begin(bool* gameStarted, userInfo* users, int users_count, gameLevel levels[MAX_LEVELS], int currentGame){
   if(*gameStarted)
     return false;
 
   // avisa os UIs todos
   sharedData data;
   strcpy(data.cmd.command, "begin_motor");
-  data.level.level = levels[0].level;
-  data.level.level_time = levels[0].level_time;
+  data.level.level = levels[currentGame].level;
+  data.level.level_time = levels[currentGame].level_time;
 
   for (int lin=0; lin < NUM_LINES; lin++)
     for(int col=0; col < NUM_COLS; col++)
-      data.level.map[col][lin] = levels[0].map[col][lin];
+      data.level.map[col][lin] = levels[currentGame].map[col][lin];
 
   char fifoUi[MAX_STRING];
   for(int i=0; i < users_count; i++){

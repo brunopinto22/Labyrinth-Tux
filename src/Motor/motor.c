@@ -19,16 +19,35 @@ void *systemTimer(void *arg) {
 bool isGameStarted = false;
 int currentLevel = 0;
 envVariables gameSettings;
+gameLevel levels[MAX_LEVELS];
+int usersCount = 0;
+userInfo users[MAX_USERS];
 
-int level_timer;
+int level_timer = 0;
 void *levelTimer(void *arg) {
-  level_timer = gameSettings.timer - gameSettings.timer_dc*currentLevel;
-  while (1) {
-    sleep(1);
-    level_timer--;
-    if(level_timer <= 0)
-      break;
+
+  while(currentLevel < MAX_LEVELS){
+
+    level_timer = levels[currentLevel].level_time;
+
+    while (1) {
+      sleep(1);
+      level_timer--;
+      if(level_timer <= 0)
+        break;
+    }
+    currentLevel++;
+    isGameStarted = false;
+    begin(&isGameStarted, users, usersCount, levels, currentLevel);
+
+    printf("\n\n%s> Acabou o Nivel %d %s\n\n>> ", C_MESSAGE, currentLevel, C_CLEAR);
+
   }
+  printf("\n\n%s> Acabou o Jogo %s\n\n>> ", C_ONLINE, C_CLEAR);
+
+  level_timer = 0;
+  currentLevel = 0;
+  isGameStarted = false;
   return NULL;
 }
 
@@ -49,8 +68,6 @@ int main(int argc, char** argv){
 
   // vars do motor
   int fd;
-  int usersCount = 0;
-  userInfo users[MAX_USERS];
 
   // vars de comunicacao
 	prompt cmd;
@@ -61,7 +78,6 @@ int main(int argc, char** argv){
 
   // vars de jogo
   int inGameUsers = 0;
-  gameLevel levels[MAX_LEVELS];
 
 	// select
 	int res;
@@ -153,9 +169,19 @@ int main(int argc, char** argv){
       break;
 
       case BEGIN:
-        if(begin(&isGameStarted, users, usersCount, levels)){
+        if(begin(&isGameStarted, users, usersCount, levels, currentLevel)){
           printf("\n%s> A comecar o Jogo%s\n", C_ONLINE, C_CLEAR);
-          //runGame(levels, &gameSettings, users, usersCount);
+          
+          // criar thread para o temporizador de nivel
+          if (pthread_create(&th_LevelTimer, NULL, levelTimer, NULL) != 0) {
+            if(!closeMotor(&fd)){
+              printf("%s\nERRO - programa nao foi bem fechado\n%s", C_FATAL_ERROR, C_CLEAR);
+              return 1;
+            }
+            printf("%s\nERRO - nao foi possivel criar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
+            return 1;
+          }
+
         }
         else
           printf("\n%sO Jogo ja comecou%s\n", C_ERROR, C_CLEAR);
@@ -177,7 +203,8 @@ int main(int argc, char** argv){
       break;
 
       case TIME:
-        printf("\n%s> Tempo do Sistema : %ds%s\n", C_ONLINE, system_timer, C_CLEAR);
+        printf("\n%s> Tempo do Sistema : %s%ds", C_IDLE, C_CLEAR, system_timer);
+        printf("\n%s> Tempo do Nivel Atual : %s%ds\n", C_IDLE, C_CLEAR, level_timer);
       break;
 
       case END:
@@ -263,7 +290,8 @@ int main(int argc, char** argv){
             printf("%s\nERRO - falha no envio%s\n", C_ERROR, C_CLEAR);
         }
 
-        printf("\n>> ");
+        if(commandUI != MOVE)
+          printf("\n>> ");
         
 			}
 		}
@@ -280,6 +308,9 @@ int main(int argc, char** argv){
   }
 
   if (pthread_cancel(th_SystemTimer) != 0) 
+    printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
+
+  if (pthread_cancel(th_LevelTimer) != 0) 
     printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
 
   printf("\n%s⋉  Bye Bye ⋊%s\n", C_MOTOR, C_CLEAR);

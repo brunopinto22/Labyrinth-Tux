@@ -75,7 +75,7 @@ void printSettings(envVariables* gameSettings);
 void printHelp();
 // imprime a lista de comandos
 
-bool begin(bool* gameStarted, userInfo* users, int users_count, gameLevel levels[MAX_LEVELS]);
+bool begin(bool* gameStarted, userInfo* users, int users_count, gameLevel levels[MAX_LEVELS], int currentGame);
 // inicia o jogo
 // retorna:     true - inicie
 //              false - caso de algum erro
