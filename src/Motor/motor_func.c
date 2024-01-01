@@ -180,8 +180,24 @@ void updateUsersMove(sharedData* data, userInfo* users_list, int users_count){
   char fifoUi[MAX_STRING];
   int result;
 
+  data->users_count = users_count;
+
+  for(int i=0; i < users_count; i++){
+    if(users_list[i].pid == data->user.pid){
+      users_list[i].coords.x = data->user.coords.x;
+      users_list[i].coords.y = data->user.coords.y;
+    }
+
+    strcpy(data->user_list[i].name, users_list[i].name);
+    data->user_list[i].pid = users_list[i].pid;
+    data->user_list[i].inGame = users_list[i].inGame;
+    data->user_list[i].coords.x = users_list[i].coords.x;
+    data->user_list[i].coords.y = users_list[i].coords.y+1;
+  }
+
   for(int i=0; i < users_count; i++){
     if(users_list[i].pid != data->user.pid && users_list[i].inGame){
+
       sprintf(fifoUi, UI_FIFO, users_list[i].pid);
       result = sendTo(*data, fifoUi);
       if(result == 1)
@@ -190,6 +206,7 @@ void updateUsersMove(sharedData* data, userInfo* users_list, int users_count){
         printf("%s\nERRO - falha no envio%s\n", C_ERROR, C_CLEAR);
 
     }
+
   }
 
 }

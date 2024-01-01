@@ -170,6 +170,10 @@ int main(int argc, char** argv){
         printMap(data.level);
         printUserOnMap(&user);
 
+        for(int i=0; i < data.users_count; i++)
+            if(data.user_list[i].inGame && data.user_list[i].pid != PID)
+              printUserOnMap(&data.user_list[i]);
+
         // avisar o Motor
         strcpy(data.cmd.command, "move");
         result = sendTo(data, MOTOR_FIFO);
@@ -298,8 +302,13 @@ int main(int argc, char** argv){
         break;
 
         case MOVE:
-          sprintf(data.error, "%d - moveu se para %d %d", data.user.pid, data.user.coords.x, data.user.coords.y);
-          printOutput(data.error, false);
+
+          printMap(data.level);
+
+          for(int i=0; i < data.users_count; i++)
+            if(data.user_list[i].inGame)
+              printUserOnMap(&data.user_list[i]);
+          
         break;
 
         case ENDGAME:
