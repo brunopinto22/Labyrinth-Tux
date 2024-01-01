@@ -168,11 +168,12 @@ int main(int argc, char** argv){
           break;
 
         printMap(data.level);
-        printUserOnMap(&user);
 
         for(int i=0; i < data.users_count; i++)
-            if(data.user_list[i].inGame && data.user_list[i].pid != PID)
-              printUserOnMap(&data.user_list[i]);
+          if(data.user_list[i].inGame && data.user_list[i].pid != PID)
+            printUserOnMap(&data.user_list[i]);
+
+        printUserOnMap(&user);
 
         // avisar o Motor
         strcpy(data.cmd.command, "move");
