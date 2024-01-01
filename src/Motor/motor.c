@@ -15,7 +15,9 @@ int usersCount = 0;
 userInfo users[MAX_USERS];
 
 int level_timer = 0;
+bool levelTimerExists = false;
 void *levelTimer(void *arg) {
+  levelTimerExists = true;
 
   while(currentLevel < MAX_LEVELS){
 
@@ -58,14 +60,22 @@ void *systemTimer(void *arg) {
     sleep(1);
     system_timer++;
 
+    // iniciar o jogo automaticamente
     if(startGame >= gameSettings.reg_time && usersCount >= gameSettings.min_players)
       begin(&isGameStarted, users, usersCount, levels, currentLevel);
 
     else if(!isGameStarted){
+
+      // contar o tempo para comecar automaticamente
       if(startGame < gameSettings.reg_time)
         startGame++;
-      else
+      else{
+        // tentou iniciar mas nao cumpriu os requesitos
         startGame = 0;
+        printf("%s\n\n> Tentei Iniciar o Jogo : %sos requisitos nao foram cumpridos%s\n\n>> ", C_ERROR, C_FERROR, C_CLEAR);
+        
+      }
+
     } else
       startGame = 0;
 
@@ -146,8 +156,11 @@ int main(int argc, char** argv){
 			printf("\n%sERRO - Occoreu um erro no select%s\n", C_FATAL_ERROR, C_CLEAR);
 			if(!closeMotor(&fd))
         printf("%s\nERRO - programa nao foi bem fechado\n%s", C_FATAL_ERROR, C_CLEAR);
-      if (pthread_cancel(th_SystemTimer) != 0) 
-        printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
+        
+      if(levelTimerExists)
+        if (pthread_cancel(th_LevelTimer) != 0) 
+          printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
+
       return 1;
 		}
 		else if (res > 0 && FD_ISSET(0, &fds) && command != END) { // ler os comandos do ADMIN
@@ -323,19 +336,16 @@ int main(int argc, char** argv){
 
   closeUIs(users, usersCount);
 
-  if(!closeMotor(&fd)){
-    if (pthread_cancel(th_SystemTimer) != 0) 
-      printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
+  if(!closeMotor(&fd))
     printf("%s\nERRO - programa nao foi bem fechado\n%s", C_FATAL_ERROR, C_CLEAR);
-    return 1;
-  }
 
   if (pthread_cancel(th_SystemTimer) != 0) 
     printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
 
-  if (pthread_cancel(th_LevelTimer) != 0) 
-    printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
+  if(levelTimerExists)
+    if (pthread_cancel(th_LevelTimer) != 0) 
+      printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
 
-  printf("\n%s⋉  Bye Bye ⋊%s\n", C_MOTOR, C_CLEAR);
+  printf("\n\n%s⋉  Bye Bye ⋊%s\n", C_MOTOR, C_CLEAR);
 	return 0;
 }

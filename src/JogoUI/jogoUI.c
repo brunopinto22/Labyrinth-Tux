@@ -12,8 +12,10 @@ int level_timer = 0;
 int best_time = 0;
 bool gameStarted = false;
 bool won = false;
+bool levelTimerExists = false;
 void *levelTimer(void *arg) {
   char text[MAX_STRING];
+  levelTimerExists = true;
   while (1) {
 
     sleep(1);
@@ -265,10 +267,9 @@ int main(int argc, char** argv){
             // fechar janela
             closeWindow();
 
-            if(!closeUI(&fd, data, false)){
+            if(!closeUI(&fd, data, false))
               printf("%s\nERRO - programa nao foi bem fechado\n\n%s", C_FATAL_ERROR, C_CLEAR);
-              return 1;
-            }
+            
             printf("%s\nERRO - nao foi possivel criar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
             return 1;
           }
@@ -287,6 +288,7 @@ int main(int argc, char** argv){
             printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
             return 1;
           }
+          levelTimerExists = false;
           
           // limpa o mapa
           clearMap();
@@ -309,21 +311,13 @@ int main(int argc, char** argv){
 
 	} while(command != EXIT && command != KICKED);
 
-  if(!closeUI(&fd, data, command == KICKED)){
-    // terminar a thread
-    if (pthread_cancel(th_LevelTimer) != 0) {
-      printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
-      return 1;
-    }
+  if(!closeUI(&fd, data, command == KICKED))
     printf("%s\nERRO - programa nao foi bem fechado\n\n%s", C_FATAL_ERROR, C_CLEAR);
-    return 1;
-  }
 
   // terminar a thread
-  if (pthread_cancel(th_LevelTimer) != 0) {
-    printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
-    return 1;
-  }
+  if(levelTimerExists)
+    if (pthread_cancel(th_LevelTimer) != 0)
+      printf("%s\nERRO - nao foi possivel terminar a thread de tempo\n\n%s", C_FATAL_ERROR, C_CLEAR);
 
   printf("\n%s⋉  Bye Bye ⋊%s\n\n", C_UI, C_CLEAR);
 	return 0;
