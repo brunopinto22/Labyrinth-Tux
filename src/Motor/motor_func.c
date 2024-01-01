@@ -192,7 +192,7 @@ void updateUsersMove(sharedData* data, userInfo* users_list, int users_count){
     data->user_list[i].pid = users_list[i].pid;
     data->user_list[i].inGame = users_list[i].inGame;
     data->user_list[i].coords.x = users_list[i].coords.x;
-    data->user_list[i].coords.y = users_list[i].coords.y+1;
+    data->user_list[i].coords.y = users_list[i].coords.y;
   }
 
   for(int i=0; i < users_count; i++){
