@@ -14,6 +14,7 @@ gameLevel levels[MAX_LEVELS];
 int usersCount = 0;
 userInfo users[MAX_USERS];
 
+int startGame = 0;
 int level_timer = 0;
 bool levelTimerExists = false;
 void *levelTimer(void *arg) {
@@ -43,6 +44,7 @@ void *levelTimer(void *arg) {
   level_timer = 0;
   currentLevel = 0;
   isGameStarted = false;
+  startGame = 0;
 
   // termina o jogo
   endGame(users, usersCount);
@@ -53,7 +55,6 @@ void *levelTimer(void *arg) {
 
 // temporizador
 int system_timer = 0;
-int startGame = 0;
 void *systemTimer(void *arg) {
   while (1) {
 
@@ -64,20 +65,8 @@ void *systemTimer(void *arg) {
     if(startGame >= gameSettings.reg_time && usersCount >= gameSettings.min_players)
       begin(&isGameStarted, users, usersCount, levels, currentLevel);
 
-    else if(!isGameStarted){
-
-      // contar o tempo para comecar automaticamente
-      if(startGame < gameSettings.reg_time)
-        startGame++;
-      else{
-        // tentou iniciar mas nao cumpriu os requesitos
-        startGame = 0;
-        printf("%s\n\n> Tentei Iniciar o Jogo : %sos requisitos nao foram cumpridos%s\n\n>> ", C_ERROR, C_FERROR, C_CLEAR);
-        
-      }
-
-    } else
-      startGame = 0;
+    else if(!isGameStarted)
+      startGame++;
 
   }
   return NULL;
