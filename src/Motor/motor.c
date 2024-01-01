@@ -274,6 +274,14 @@ int main(int argc, char** argv){
             data.result = false;
         break;
 
+        case PLAYERS:
+          for(int i=0; i < usersCount; i++)
+            sprintf(data.error, "[%d] : %s\n", users[i].pid, users[i].name);
+          
+        printf("\n\n%s[%d] : pediu a lista de Jogadores %s\n", C_MESSAGE, data.user.pid, C_CLEAR);
+
+        break;
+
         case MOVE:
           updateUsersMove(&data, users, usersCount);
         break;

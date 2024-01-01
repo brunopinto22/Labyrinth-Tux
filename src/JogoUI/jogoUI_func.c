@@ -92,6 +92,13 @@ int checkCMD(prompt* prmt){
     strcpy(error, "erro de formatacao: msg <jogador> <mensagem>");
     return CMD_ERROR;
 
+  } else if(strcmp(prmt->command, "players") == 0){
+
+    if(strcmp(prmt->args, "") == 0)
+      return PLAYERS;
+    strcpy(error, "erro de formatacao: players");
+    return CMD_ERROR;
+
   } else if(strcmp(prmt->command, "help") == 0){
 
     if(strcmp(prmt->args, "") == 0)

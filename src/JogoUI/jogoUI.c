@@ -136,6 +136,20 @@ int main(int argc, char** argv){
         printOutput(getError(), true);
       break;
 
+      case PLAYERS:
+
+        strcpy(data.cmd.command, "players");
+
+        // avisar motor
+        result = sendTo(data, MOTOR_FIFO);
+        if(result == 1)
+          sprintf(data.error, "ERRO - nao foi possivel abrir %s", MOTOR_FIFO);
+        else if(result == -1)
+          strcpy(data.error, "ERRO - falha no envio");
+        printOutput(data.error, result != 0);
+
+      break;
+
       case UP:
       case DOWN:
       case RIGHT:
@@ -243,6 +257,12 @@ int main(int argc, char** argv){
           else
             printOutput(data.error, true);
           
+        break;
+
+        case PLAYERS:
+
+          printScore(data.error, data.result);
+
         break;
 
         case BEGIN:

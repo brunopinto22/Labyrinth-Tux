@@ -33,7 +33,7 @@ void printOutput(char* message, bool isError);
 void printMessage(char* message);
 // imprime a mensagem recebida
 
-void printScore(char* score);
+void printScore(char* scores, bool isError);
 // imprime a pontuacao
 
 void printMap(gameLevel current_level);

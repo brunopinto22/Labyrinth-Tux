@@ -358,6 +358,12 @@ int checkCMD_UI(prompt* prmt){
       return MOVE;
     return CMD_ERROR;
 
+  } else if(strcmp(prmt->command, "players") == 0){
+
+    if(strcmp(prmt->args, "") == 0)
+      return PLAYERS;
+    return CMD_ERROR;
+
   } else if(strcmp(prmt->command, "msg") == 0){
 
     char pl[MAX_STRING], msg[MAX_STRING];

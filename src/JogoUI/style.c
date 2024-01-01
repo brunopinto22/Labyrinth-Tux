@@ -138,6 +138,21 @@ void printMessage(char* message){
 
 }
 
+void printScore(char* score, bool isError){
+
+  if(isError)
+    wattrset(output, COLOR_PAIR(COLOR_RED));
+  else
+    wattrset(output, COLOR_PAIR(COLOR_BLACK));
+
+  printOneWindow(scoreBoard, false, true);
+  
+  mvwprintw(scoreBoard, 1, 1, "%s", score);
+  wrefresh(scoreBoard);
+  wmove(input, 2, 1);
+
+}
+
 void printMap(gameLevel current_level){
 
   printOneWindow(map, false, false);
